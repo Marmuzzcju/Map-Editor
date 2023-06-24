@@ -117,6 +117,7 @@ let hotkeys = {
   s: "s",
   d: "d",
   f: "f",
+  x: "x",
   Plus: "+",
   Minus: "-",
   Zero: "0",
@@ -178,6 +179,9 @@ document.getElementById("confirm").style.display = "none";
 document.getElementById("downloadMapOptions").style.display = "none";
 document.getElementById("tower-info").style.display = "none";
 document.getElementById("colorPicker").style.display = "none";
+
+const randomNumber = (min, max) =>
+Math.floor(Math.random() * (max - min)) + min;
 
 function buildTower() {
   //console.log("Click detected (" + event.button + ")");
@@ -311,23 +315,101 @@ function createWall(one, two) {
 
 function buildShading(towerIDs) {
   if (towerIDs == undefined) {
-    lookForEnshadedArea(closestWall);
+    lookForEnshadedArea(getClosestWall());
     //towerIDs = towerID;
-    createShading(getSelectedTowers());
+    //createShading(getSelectedTowers());
     return; //!!here!!
   }
   createShading(convertIDtoArray(towerIDs));
 }
 
-function closestWall() {
-  let nt = getNearestTower();
-  return nt;
+function lookForEnshadedArea(index) {
+  let startingTower = wallTower1[index];
+  document.querySelectorAll('.tower')[convertIDtoArray(startingTower)].classList.add('highlighted');
+  let finishTower = wallTower2[index];
+  let availableWalls = {
+    ids: {
+      t1: [],
+      t2: [],
+    },
+    availability: [],
+  };
+  wallTower1.forEach((id, index) => {
+    availableWalls.ids.t1.push(id);
+    availableWalls.ids.t2.push(wallTower2[index]);
+    availableWalls.availability.push(0); //0 > free/unused
+  });
+  availableWalls.availability[index] = 1; //1 > used in wall chain
+  let possibleWalls = [];
+  availableWalls.ids.t1.forEach((t1id, index) => {
+    if (t1id === startingTower && availableWalls.availability[index] === 0) {
+      possibleWalls.push({ index: index, set: 0 });
+    } else if (
+      availableWalls.ids.t2[index] === startingTower &&
+      availableWalls.availability[index] === 0
+    ) {
+      possibleWalls.push({ indx: index, set: 1 });
+    }
+  });
+  if (possibleWalls.length < 1) {
+    console.log("NO WALLS!!!");
+    return;
+  }
+  console.log("SOME WALLS!!!");
+  let offests = [];
+  let arrM = convertIDtoArray(startingTower);
+  let arrS = convertIDtoArray(finishTower);
+  possibleWalls.forEach((index) => {
+    let arrT = convertIDtoArray(availableWalls.ids[index.set][index.indx]);
+    offests.push(
+      getOffset(
+        towerXpos[arrS],
+        towerYpos[arrS],
+        towerXpos[arrM],
+        towerYpos[arrM],
+        towerXpos[arrT],
+        towerYpos[arrT]
+      )
+    );
+  });
+  let closestTower = {
+    distance: Infinity,
+    index: Infinity,
+  };
+  offests.forEach((dist, index) => {
+    if (dist < closestTower.distance) {
+      closestTower.distance = dist;
+      closestTower.index = index;
+    }
+  });
+  let finalTower = convertIDtoArray(
+    availableWalls.ids[possibleWalls[closestTower.index].set].possibleWalls[
+      closestTower.index
+    ].index
+  );
+  document
+    .querySelectorAll(".tower")
+    [
+      convertIDtoArray(
+        availableWalls.ids[possibleWalls[closestTower.index].set].possibleWalls[
+          closestTower.index
+        ].index
+      )
+    ].classList.add("highlighted");
 }
 
-function lookForEnshadedArea() {}
+function getOffset(X1, Y1, X2, Y2, X3, Y3) {
+  let v13 = { x: X3 - X1, y: Y3 - Y1 };
+  let d13 = Math.sqrt(Math.pow(X3 - X1, 2) + Math.pow(Y3 - Y1, 2));
+  let v23 = { x: X3 - X2, y: Y3 - Y2 };
+  let d23 = Math.sqrt(Math.pow(X3 - X2, 2) + Math.pow(Y3 - Y2, 2));
+  let c12 = d13 / d23;
+  v23 = { x: v23.x * c12, y: v23.y * c12 };
+  let o12 = Math.sqrt(Math.pow(v13 - v23, 2) + Math.pow(v13 - v23, 2));
+  return o12;
+}
 
 function createShading(towerArray) {
-  //!!here!!
   /*let svgShading = document.querySelector('#mapShadingSvg');
 	let polygonShading = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');*/
   let coords = "";
@@ -394,7 +476,11 @@ function createDifferentThing(whichThing, coords) {
       bombSpotSprite[whichBomb].style.top = coords.y * 20 - 120; //100 - half size of bomb spot so they´re cenetered around your mouse
       if (bombSpotSprite[whichBomb].classList.contains("hidden"))
         bombSpotSprite[whichBomb].classList.remove("hidden");
-      bombSpotsT[whichBomb] = { x: coords.x, y: coords.y };
+      bombSpotsT[whichBomb] = {
+        x: coords.x,
+        y: coords.y,
+        rotation: coords.rotation,
+      };
       break;
     }
     case "spawn": {
@@ -531,6 +617,7 @@ function toggleShielded(ids) {
     allTowers[c].classList.toggle("shielded");
     someAction.tID.push(towerID[c]);
   });
+  convertIDtoArray;
   pastActions.push(someAction);
 }
 
@@ -713,7 +800,7 @@ function deleteTower(arrayIDs) {
     towerColor.splice(temp, 1);
 
     for (c2 = 0; c2 < wallTower1.length; c2++) {
-      //!!here
+      //!here
       if (wallTower1[c2] == temp2 || wallTower2[c2] == temp2) {
         someAction.wall1.push(wallTower1[c2]);
         someAction.wall2.push(wallTower2[c2]);
@@ -865,8 +952,8 @@ function generateMapFile() {
   let text = "";
   mapWidth = document.getElementById("mapWidth").value;
   mapHeight = document.getElementById("mapHeight").value;
-  temp = document.getElementById("radioDeflyMap").checked;
-  if (!temp) {
+  temp = document.getElementById("mapFileFormatSelection").value;
+  if (temp === "astrollyFormat") {
     //astrolly map format
     // following part is for astrolly map file
 
@@ -923,7 +1010,7 @@ function generateMapFile() {
     //console.log("text file - " + text);
 
     return text;
-  } else {
+  } else if (temp === "deflyFormat") {
     //defly map format
     if (isNaN(mapWidth) || mapWidth == undefined || mapWidth == "") {
       mapWidth = 210;
@@ -945,53 +1032,51 @@ function generateMapFile() {
         kothBounds[3] +
         "\n";
     }
-    /*temp=0;
-	    for(let i=0; i<bombSpotsT.length; i+=2){
-		  text += "t " + temp + " " + bombSpotsT[i] + " " + bombSpotsT[i+1] + "\n";
-		  temp++;
-		}
-		temp=1;
-		for(let i=0; i<spawnPointsS.length; i+=2){
-		  text += "s " + temp + " " + spawnPointsS[i] + " " + spawnPointsS[i+1] + "\n";
-		  temp++;
-		}*/
-    /*bombSpotsT.slice(1).forEach((bombCoords, index) => {
-			text += 't ' + index + ' ' + bombCoords.x + ' ' + bombCoords.y + '\n';
-		})*/
+
     bombSpotsT.forEach((bombCoords, index) => {
-      text += "t " + index + " " + bombCoords.x + " " + bombCoords.y + "\n";
+      text += "t " + index + " " + bombCoords.x + " " + bombCoords.y;
+      if (!isNaN(bombCoords.rotation)) text += " " + bombCoords.rotation;
+      text += "\n";
     });
     spawnPointsS.forEach((spawn, index) => {
       text += "s " + (index + 1) + " " + spawn.x + " " + spawn.y + "\n";
     });
-    /*for(let c = 0; c < towerID.length; c++){  //get towers
-	    text += "d " + towerID[c] + " " + (towerXpos[c]/20) + " " + (towerYpos[c]/20);
-        if(towerColor[c] != 1){
-		  text += " " + towerColor[c] + "\n";
-		}else{
-		  text += "\n";
-		}
-	  }*/
-    towerID.forEach((ID, c) => {
+
+    let cleanStuff = cleanMapInformation();
+
+    cleanStuff.towerIDs.forEach((id, index) => {
+      text +=
+        "d " +
+        id +
+        " " +
+        cleanStuff.towerX[index] +
+        " " +
+        cleanStuff.towerY[index];
+      if (cleanStuff.towerCol[index] != 1) {
+        text += " " + cleanStuff.towerCol[index] + "\n";
+      } else {
+        text += "\n";
+      }
+    });
+
+    /*towerID.forEach((ID, c) => {
       text += "d " + ID + " " + towerXpos[c] / 20 + " " + towerYpos[c] / 20;
       if (towerColor[c] != 1) {
         text += " " + towerColor[c] + "\n";
       } else {
         text += "\n";
       }
+    });*/
+
+    cleanStuff.wallT1IDs.forEach((id1, index) => {
+      text += "l " + id1 + " " + cleanStuff.wallT2IDs[index] + "\n";
     });
-    /*for(let u = 0; u < wallTower1.length; u++){  //walls
-	    text += "l " + wallTower1[u] + " " + wallTower2[u] + "\n";
-	  }*/
-    wallTower1.forEach((nothing, c) => {
+
+    /*wallTower1.forEach((nothing, c) => {
       text += "l " + wallTower1[c] + " " + wallTower2[c] + "\n";
-    });
-    /*temp = shadedAreas.length;
-	  for(let g = 0; g < temp; g++){  //shaded
-	    text += shadedAreas[g];
-		if(g<temp){text+= "\n";}
-	  }*/
-    shadedAreas.forEach((area) => {
+    });*/
+
+    cleanStuff.shadingIDs.forEach((area) => {
       text += "z ";
       area.forEach((point) => {
         text += point + " ";
@@ -999,26 +1084,88 @@ function generateMapFile() {
       text = text.trimEnd();
       text += "\n";
     });
-    /*allTowers = document.getElementsByClassName("tower");
-	  for(let c=0; c<allTowers.length; c++){
-		if(allTowers[c].classList.contains("shielded")){
-			text += "\n";
-			text += "l " + towerID[c] + " " + towerID[c];
-			text += "\n";
-			text += "z " + towerID[c] + " " + towerID[c];
-		}
-	  }*/
+
+    /*shadedAreas.forEach((area) => {
+      text += "z ";
+      area.forEach((point) => {
+        text += point + " ";
+      });
+      text = text.trimEnd();
+      text += "\n";
+    });*/
+
     let allTowers = document.querySelectorAll(".tower");
     Array.from(allTowers).forEach((tower, c) => {
       if (tower.classList.contains("shielded")) {
         text += "\n";
-        text += "l " + towerID[c] + " " + towerID[c];
+        text += "l " + cleanStuff.towerIDs[c] + " " + cleanStuff.towerIDs[c];
         text += "\n";
-        text += "z " + towerID[c] + " " + towerID[c];
+        text += "z " + cleanStuff.towerIDs[c] + " " + cleanStuff.towerIDs[c];
       }
     });
-    //console.log("!!!>> " + shadedAreas[shadedAreas.length-1]);
+
     return text;
+  } else if (temp === "compactFormat") {
+    //!here
+    notWorkingYet();
+
+    let cleanIds = cleanMapInformation();
+
+    if (isNaN(mapWidth) || mapWidth === undefined) text += ",";
+    else text += mapWidth + ",";
+    if (isNaN(mapHeight) || mapHeight === undefined) text += "|";
+    else text += mapHeight + "|";
+
+    if (!isNaN(kothBounds[0])) {
+      text +=
+        kothBounds[0] +
+        "," +
+        kothBounds[1] +
+        "," +
+        kothBounds[2] +
+        "," +
+        kothBounds[3] +
+        "|";
+    } else {
+      text += "|";
+    }
+
+    bombSpotsT.forEach((bombCoords, index) => {
+      text += bombCoords.x + "," + bombCoords.y + ",";
+      if (!isNaN(bombCoords.rotation)) text += bombCoords.rotation;
+      text += ",";
+      if (index == bombSpotsT.length - 1) text = text.replace(/.$/, "");
+    });
+    text += "|";
+    spawnPointsS.forEach((spawn, index) => {
+      text += spawn.x + "," + spawn.y + ",";
+      if (index == spawnPointsS.length - 1) text = text.replace(/.$/, "");
+    });
+    text += "|";
+
+    cleanIds.towerIDs.forEach((ID, index) => {
+      text += cleanIds.towerX[index] + "," + cleanIds.towerY[index] + ",";
+      if (cleanIds.towerCol[index] != 1) text += cleanIds.towerCol[index];
+      cleanIds.wallT1IDs.forEach((wID, wIndex) => {
+        if (ID === wID) text += "," + cleanIds.wallT2IDs[wIndex];
+      });
+      text += ";";
+    });
+    text = text.replace(/.$/, "");
+    text += "|";
+
+    cleanIds.shadingIDs.forEach((area, index) => {
+      area.forEach((aID, aIndex) => {
+        text += aID + ",";
+      });
+      text = text.replace(/.$/, ";");
+    });
+    text = text.replace(/.$/, "");
+
+    return text;
+  } else {
+    someErrorHere();
+    return "-";
   }
 }
 
@@ -1026,25 +1173,31 @@ function CopyFile() {
   // Get the text content of the element
 
   // Create a temporary element for copying
-  var temp = document.createElement("textarea");
-  temp.value = generateMapFile();
-  document.body.appendChild(temp);
+  let templ = document.createElement("textarea");
+  templ.value = generateMapFile();
+  if (templ.value === "-") {
+    document.body.removeChild(templ);
+    return;
+  }
+  document.body.appendChild(templ);
 
   // Select the text and copy it to the clipboard
-  temp.select();
+  templ.select();
   document.execCommand("copy");
 
   // Remove the temporary element
-  document.body.removeChild(temp);
+  document.body.removeChild(templ);
 } //=== thx to Alex for providing that code  xd  ===
 
 function downloadMapFile() {
   mapName = document.getElementById("mapName").value;
-  var filename = mapName + "-deflyMap.txt";
-  var element = document.createElement("a");
+  let textContent = generateMapFile();
+  if (textContent === "-") return;
+  let filename = mapName + "-deflyMap.txt";
+  let element = document.createElement("a");
   element.setAttribute(
     "href",
-    "data:text/plain;charset=utf-8," + encodeURIComponent(generateMapFile())
+    "data:text/plain;charset=utf-8," + encodeURIComponent(textContent)
   );
   element.setAttribute("download", filename);
 
@@ -1067,7 +1220,6 @@ function loadMapFile() {
   }
   console.log(loadedFile);
   for (let n = 0; n < loadedFile.length; n++) {
-    //!!here
     switch (loadedFile[n]) {
       case "MAP_WIDTH":
         if (startingTowerID == 0) {
@@ -1127,7 +1279,7 @@ function loadMapFile() {
             loadedFile[n + 4]
         );
         for (let i = 0; i < 4; i++) {
-          //!!here
+          //!here
           kothBounds[i] = loadedFile[n + i + 1];
         }
         break;
@@ -1136,6 +1288,7 @@ function loadMapFile() {
         createDifferentThing(["bomb", loadedFile[n + 1]], {
           x: loadedFile[n + 2],
           y: loadedFile[n + 3],
+          rotation: loadedFile[n + 4],
         });
         break;
       case "s": //spawns
@@ -1159,8 +1312,8 @@ function loadMapFile() {
           temp = 1;
         }
         createTower(
-          loadedFile[n + 2] * 20,
-          loadedFile[n + 3] * 20,
+          loadedFile[n + 2] * 20 + randomNumber(-10, 10)*0,
+          loadedFile[n + 3] * 20 + randomNumber(-10, 10)*0,
           Number(loadedFile[n + 1]) + startingTowerID,
           temp
         );
@@ -1180,7 +1333,7 @@ function loadMapFile() {
         //temp = '';
         let thisShadingsID = [];
         for (let r = 1; r < loadedFile.length; r++) {
-          //!!here
+          //!here
           if (isNaN(loadedFile[n + r]) || !(loadedFile[n + r] > 0)) {
             r = loadedFile.length;
             continue;
@@ -1205,8 +1358,81 @@ function loadMapFile() {
   //console.log(loadedFile[loadedFile.length-2]);
 }
 
+function cleanMapInformation() {
+  let copyOfIDs = {
+    towerIDs: [],
+    towerX: [],
+    towerY: [],
+    towerCol: [],
+    order: [],
+    wallT1IDs: [],
+    wallT2IDs: [],
+    shadingIDs: [],
+  };
+  towerID.forEach((id, index) => {
+    copyOfIDs.towerIDs.push(id);
+    copyOfIDs.order.push(index);
+    if (countDecimalPlaces(towerXpos[index] / 20) > 4)
+      copyOfIDs.towerX.push((towerXpos[index] / 20).toFixed(4));
+    else copyOfIDs.towerX.push(towerXpos[index] / 20);
+    if (countDecimalPlaces(towerYpos[index] / 20) > 4)
+      copyOfIDs.towerY.push((towerYpos[index] / 20).toFixed(4));
+    else copyOfIDs.towerY.push(towerYpos[index] / 20);
+    copyOfIDs.towerCol.push(towerColor[index]);
+  });
+  wallTower1.forEach((id, index) => {
+    copyOfIDs.wallT1IDs.push(id);
+    copyOfIDs.wallT2IDs.push(wallTower2[index]);
+  });
+  shadedAreas.forEach((area) => {
+    let thisArea = [];
+    area.forEach((id) => {
+      thisArea.push(id);
+    });
+    copyOfIDs.shadingIDs.push(thisArea);
+  });
+  copyOfIDs.towerIDs.sort(function (a, b) {
+    return a - b;
+  });
+  copyOfIDs.towerIDs.forEach((id, index) => {
+    towerID.forEach((tID, tIndex) => {
+      if (id === tID) copyOfIDs.order[index] = tIndex;
+    });
+  });
+  copyOfIDs.towerIDs.forEach((id, index) => {
+    let orderNumber = index + 1;
+    copyOfIDs.towerIDs.forEach((tId, tIndex) => {
+      if (tId === id) copyOfIDs.towerIDs[tIndex] = orderNumber;
+    });
+    copyOfIDs.wallT1IDs.forEach((wId, wIndex) => {
+      if (wId === id) copyOfIDs.wallT1IDs[wIndex] = orderNumber;
+    });
+    copyOfIDs.wallT2IDs.forEach((wId, wIndex) => {
+      if (wId === id) copyOfIDs.wallT2IDs[wIndex] = orderNumber;
+    });
+    copyOfIDs.shadingIDs.forEach((area, aOindex) => {
+      area.forEach((aId, aIindex) => {
+        if (aId === id) copyOfIDs.shadingIDs[aOindex][aIindex] = orderNumber;
+      });
+    });
+  });
+  let secondCopy = [];
+  copyOfIDs.order.forEach((order) => {
+    secondCopy.push(copyOfIDs.towerIDs[order]);
+  });
+  copyOfIDs.towerIDs = secondCopy;
+  return copyOfIDs;
+}
+
+function countDecimalPlaces(number) {
+  if (Math.floor(number) !== number) {
+    return number.toString().split(".")[1].length;
+  }
+  return 0;
+}
+
 function deleteExistingMap() {
-  //!!here
+  //!here
   temp = towerID.length;
   let towers = document.getElementsByClassName("tower");
   let walls = document.getElementsByClassName("wall");
@@ -1223,8 +1449,8 @@ function deleteExistingMap() {
     wallTower2.splice(0, 1);
     walls[0].remove();
   }
-  let shadings = document.querySelectorAll("polygon");
-  //shadings.remove();
+  let shading = document.querySelector("svg");
+  shading.innerHTML = "";
   shadedAreas = [];
   i = 1;
 
@@ -1289,6 +1515,15 @@ function showDownloadMapOptions() {
     document.getElementById("mapHeight").value = 120;
   } else {
     document.getElementById("mapHeight").value = mapHeight;
+  }
+}
+
+function showMapOverview(state) {
+  //-here
+  if (state === 1) {
+    document.getElementById("mapOverview").classList.remove("hidden");
+  } else {
+    document.getElementById("mapOverview").classList.add("hidden");
   }
 }
 
@@ -1864,6 +2099,71 @@ function getSelectedTowers() {
   return selectedTowerArray;
 }
 
+function getDistanceToLine(wall1x, wall1y, wall2x, wall2y, pointX, pointY) {
+  const dx1 = pointX - wall1x;
+  const dy1 = pointY - wall1y;
+  const dx2 = pointX - wall2x;
+  const dy2 = pointY - wall2y;
+  const dx12 = wall2x - wall1x;
+  const dy12 = wall2y - wall1y;
+
+  // Calculate squared distances
+  const dist1Sq = dx1 * dx1 + dy1 * dy1;
+  const dist2Sq = dx2 * dx2 + dy2 * dy2;
+  const lineLengthSq = dx12 * dx12 + dy12 * dy12;
+
+  // Calculate squared distance from point3 to line formed by point1 and point2
+  const crossProduct = dx1 * dy12 - dx12 * dy1;
+  const distToLineSq = (crossProduct * crossProduct) / lineLengthSq;
+
+  //(doesn´t have to) Check if point3 is between point1 and point2
+  const dotProduct = dx1 * dx12 + dy1 * dy12;
+  if (dotProduct >= 0 && dotProduct <= lineLengthSq) {
+    // Calculate the distance from point3 to the line
+    const distToLine = Math.sqrt(distToLineSq);
+    return distToLine;
+  }
+
+  const distanceT1 = Math.sqrt(dist1Sq) + 1;
+  const distanceT2 = Math.sqrt(dist2Sq) + 1;
+  if (distanceT1 < distanceT2) return distanceT1;
+  return distanceT2; // Point is not near the line
+}
+
+function getClosestWall() {
+  //!!here!!
+  let distances = [];
+  wallTower1.forEach((wall1id, index) => {
+    let wall1x = towerXpos[convertIDtoArray(wall1id)];
+    let wall1y = towerYpos[convertIDtoArray(wall1id)];
+    let wall2x = towerXpos[convertIDtoArray(wallTower2[index])];
+    let wall2y = towerYpos[convertIDtoArray(wallTower2[index])];
+    let distanceToThis = getDistanceToLine(
+      wall1x,
+      wall1y,
+      wall2x,
+      wall2y,
+      uncutMouseCoords.x,
+      uncutMouseCoords.y
+    );
+    distances.push(distanceToThis);
+  });
+  let closestDistance = {
+    distance: Infinity,
+    index: Infinity,
+  };
+  distances.forEach((distance, index) => {
+    if (distance < closestDistance.distance) {
+      closestDistance.distance = distance;
+      closestDistance.index = index;
+    }
+  });
+  document
+    .querySelectorAll(".wall")
+    [closestDistance.index].classList.add("highlighted");
+  return closestDistance.index;
+}
+
 function startPathCalculation(step) {
   if (step == 0 && overallBehavior == "normal") {
     overallBehavior = "pathCalc";
@@ -2014,6 +2314,36 @@ function changeMapDimensions() {
   confirmAction("Enter new map width", 4, "Change", "Cancle", true);
   theMap.style.width = mapWidth * 20;
   theMap.style.height = mapWidth * 20;
+}
+
+function playableSpace() {
+  let mapSpace = mapWidth * mapHeight;
+  let greySpace = 0;
+  shadedAreas.forEach((area) => {
+    //calculate grey area
+    let firstSet = 0;
+    let secondSet = 0;
+    let arLg = area.length;
+    area.forEach((thisArea, index) => {
+      firstSet +=
+        (towerXpos[convertIDtoArray(thisArea)] / 20) *
+        (towerYpos[convertIDtoArray(area[(index + 1) % arLg])] / 20);
+      secondSet +=
+        (towerYpos[convertIDtoArray(thisArea)] / 20) *
+        (towerXpos[convertIDtoArray(area[(index + 1) % arLg])] / 20);
+    });
+    if (firstSet < secondSet) {
+      greySpace -= firstSet - secondSet;
+    } else {
+      greySpace += firstSet - secondSet; //[calculated space];
+    }
+  });
+  greySpace /= 2;
+  let finalSpace = {
+    totallSpace: mapSpace - greySpace,
+    percentage: ((mapSpace - greySpace) / mapSpace) * 100,
+  };
+  return finalSpace;
 }
 
 function updateTowerInfo(state) {
@@ -2316,11 +2646,38 @@ document.addEventListener("keydown", function (event) {
       buildDifferentThing(["spawn", 0]);
       break;
     }
-    case hotkeys.Four:
-      {
-        buildDifferentThing(["spawn", 1]);
-        break;
-      }
+    case hotkeys.Four: {
+      buildDifferentThing(["spawn", 1]);
+      break;
+    }
+    case hotkeys.x: {
+      let space = playableSpace();
+      alert(
+        "Space: " +
+          space.totallSpace +
+          " units² - " +
+          space.totallSpace / 4 +
+          " squares - " +
+          space.percentage +
+          "%"
+      );
+      break;
+    }
+    case "h": {
+      //h for texting
+      getClosestWall();
+      /*alert(
+        getDistanceToLine(
+          towerXpos[convertIDtoArray(wallTower1[0])],
+          towerYpos[convertIDtoArray(wallTower1[0])],
+          towerXpos[convertIDtoArray(wallTower2[0])],
+          towerYpos[convertIDtoArray(wallTower2[0])],
+          mousePos.x,
+          mousePos.y
+        )
+      );*/
+      break;
+    }
   }
   //console.log("Keydown: " + event.key + "  - Ctrl: " + Ctrl + " - Shift: " + Shift);
 });
@@ -2354,7 +2711,8 @@ document.addEventListener("keyup", function (event) {
       break;
     }
     case hotkeys.c: {
-      coppyTowers();
+      if(event.ctrlKey) CopyFile();
+      else coppyTowers();
       break;
     }
     case hotkeys.v: {

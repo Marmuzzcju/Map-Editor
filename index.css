@@ -133,6 +133,13 @@ tr:nth-child(odd) {
     background-color: rgba(200,200,200,0.5);
 }
 
+#mapFileFormatSelection {
+    position: absolute;
+    bottom: 10%;
+    left: 72%;
+    font-size: 20px;
+}
+
 .tower {
     /*background-color:rgb(80, 80, 80);*/
     width: 20px;
@@ -237,11 +244,6 @@ tr:nth-child(odd) {
     top: 7%;
     left: 40%;
     font-size: 40px;
-}
-
-.mapFileOptionRadio {
-    position: fixed;
-    bottom: 18%;
 }
 
 .fixed {

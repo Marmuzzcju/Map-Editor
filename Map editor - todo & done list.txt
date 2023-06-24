@@ -5,8 +5,8 @@ Map editor
         - finish undo/redo
           >Delete chunk > undo > redo will only delete one tower  <- !!!important fix
         
-        - add clean file support
-        - add map file types
+        (- add clean file support)
+        (- add map file types)
         
         - add structure generator (support for map editor script 1 in editor)
 
@@ -185,5 +185,19 @@ Map editor
           >split file into html, css and js files
           >put them into ordner along with images and todo/done list
           >few more little things
+
+        - added space calculation:  - 20.05
+          >default hotkey 'h' for now
+          >quick add - will be reworked as better ui
+          >calculatest totall shaded area
+          >displays (alert) totall free space in units², squares and % of totall map space
+
+        - added first stage of new map format:  - 21.05
+          >only needs about 60% storage
+          >way harder to read
+
+        - added first stage of clean map support:  - 22.05
+          >all ids clean - upgoing 1 - X
+          >all cords rounded to up to 4 decimal places
 
         

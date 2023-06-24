@@ -4,6 +4,7 @@
 <link rel="icon" href="images/koth-tower.png">
 <!-- <link rel="stylesheet" href="style.css"/> -->
 <link rel="stylesheet" href="index.css"/>
+<meta charset="UTF-8">
 </head>
 <body>
 
@@ -43,6 +44,7 @@
 			<button class="fatButton" onclick="confirmAction('Enter new snap range:', 2, 'Update snap range', 'Cancel', 1);openMenu=true;">Change Snap range</button> </br>
 			<button class="fatButton" onclick="document.getElementById('distance-overview-table').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">View Distance Table</button> </br>
 			<button class="fatButton" onclick="changeMapDimensions();openMenu=true;">Change Map Dimensions</button> </br>
+			<button class="fatButton" onclick="showMapOverview(1)">View Map Overview</button> </br>
   		</div>
 	</div>
 
@@ -80,7 +82,7 @@
 </div>
 
 <div id="instructions" class="infoBackground">
-  <image src="https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/close-icon.svg" id="hideHelp" onclick="document.getElementById('instructions').style.display = 'none';mapStuff.classList.remove('blurred');openMenu=false;" class="clickable closeButton">
+  <image src="images/close-icon.png" id="hideHelp" onclick="document.getElementById('instructions').style.display = 'none';mapStuff.classList.remove('blurred');openMenu=false;" class="clickable closeButton">
   <img src="images/previous-symbol.png" id="previousHelpPage" onclick="showHelpPage(-1);" class="clickable" style="width:30px; height:30px; position:fixed; left:10.5%; bottom:49%;z-index:1;">
   <img src="images/previous-symbol.png" id="previousHelpPage" onclick="showHelpPage(1);" class="clickable" style="width:30px; height:30px; position:fixed; right:10.5%; bottom:49%; z-index:1; -webkit-transform:scaleX(-1); transform:scaleX(-1);">
   <p id="pageCount" style="font-size:20px; position:fixed; bottom:10%; right:11%; z-index:1;">1/3</span>
@@ -89,7 +91,7 @@
 	<div id="helpPage1" class="instructionContentPage">
 	  page 1</br>
 	  Use Right Click to place towers </br>
-	  A new placed tower will be sellected on default<img src="https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/close-icon.svg"></br>
+	  A new placed tower will be sellected on default<img src="images/close-icon.png"></br>
 	  Left click any towers to select them</br>
 	  Shift click a tower to add or remove it from the sellected towers</br>
 	  Ctrl Click any tower to sellect all towers</br>
@@ -106,7 +108,7 @@
 </div>
 
 <div id="hotkeys" class="infoBackground">
-  <image src="https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/close-icon.svg" id="hideHotkeys" onclick="hideHotkeyMenu();openMenu=false;" class="clickable closeButton">
+  <image src="images/close-icon.png" id="hideHotkeys" onclick="hideHotkeyMenu();openMenu=false;" class="clickable closeButton">
   <div id="hotkeysContent" class="infoScroller">
     <p class="infoTitle">Hotkeys</p>
 	<p style="position:fixed;top:18%;left:38%;">Click any hotkey to change its key</p>
@@ -142,7 +144,7 @@
 </div>
 
 <div id="downloadMapOptions" class="infoBackground">
-  <image src="https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/close-icon.svg" id="hideDownloadMapOptions" onclick="document.getElementById('downloadMapOptions').style.display = 'none';mapStuff.classList.remove('blurred');openMenu=false;" class="clickable closeButton">
+  <image src="images/close-icon.png" id="hideDownloadMapOptions" onclick="document.getElementById('downloadMapOptions').style.display = 'none';mapStuff.classList.remove('blurred');openMenu=false;" class="clickable closeButton">
   <div id="downloadMapOptionsContent" class="infoScroller">
     <p class="infoTitle">Map file options</p>
 	<p style="position:fixed;top:23%;left:24%;font-size:20px;">Map name: </p>
@@ -155,10 +157,15 @@
 	<input id="mapHeight" type="text" onclick="this.select();" style="position:fixed;top:50%;left:63%;" value="120">
 	<button id="downloadMapFileButton" class="fatButton" style="width:120px;position:fixed;bottom:16%;right:13%;" onclick="downloadMapFile();" class="clickable">Download Map File</button>
 	<!-- radios \/ -->
-	<input type="radio" id="radioDeflyMap" name="mapGeneratingType" value="generateDeflyMap" class="clickable mapFileOptionRadio" style="right:40%;" checked>
+	<!--<input type="radio" id="radioDeflyMap" name="mapGeneratingType" value="generateDeflyMap" class="clickable mapFileOptionRadio" style="right:40%;" checked>
 	<label for="loadNewMap" class="mapFileOptionRadio" style="right:35%;">Defly Map</label>
     <input type="radio" id="radioAstrollyMap" name="mapGeneratingType" value="generateAstrollyMap" class="clickable mapFileOptionRadio" style="right:29%;">
-    <label for="loadAdditionalMap" class="mapFileOptionRadio" style="right:23%;">Astrolly Map</label>
+    <label for="loadAdditionalMap" class="mapFileOptionRadio" style="right:23%;">Astrolly Map</label>-->
+	<select id="mapFileFormatSelection" name="mapFileFormatSelection" class="clickable">
+		<option value="deflyFormat">Defly Map</option>
+		<option value="astrollyFormat">Astrolly Map</option>
+		<option value="compactFormat">Compact (!)</option>
+	</select>
   </div>
 </div>
 
@@ -186,7 +193,7 @@
 </div>
 
 <div id="distance-overview-table" class="infoBackground" style="display: none;">
-	<image src="https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/close-icon.svg" id="hideTable" onclick="document.getElementById('distance-overview-table').style.display = 'none';mapStuff.classList.remove('blurred');openMenu=false;" class="clickable closeButton"></image>
+	<image src="images/close-icon.png" id="hideTable" onclick="document.getElementById('distance-overview-table').style.display = 'none';mapStuff.classList.remove('blurred');openMenu=false;" class="clickable closeButton"></image>
 	<div class="infoScroller">
 		<table style="text-align: center; position: relative; top: 10%; left: 3.6%; bottom: 15%; right: 15%; width: 70%; height: 15%;">
 			<tr>
@@ -262,6 +269,13 @@
 				<td><input type="checkbox" class="clickable" id="path_5_checkbox"></td>
 			</tr>
 		</table>
+	</div>
+</div>
+
+<div id="mapOverview" class="infoBackground hidden">
+	<img src="images/close-icon.png" id="hideTable" onclick="showMapOverview(0)" class="clickable closeButton"></image>
+	<div id="mapOverviewContent" class="infoScroller">
+		<p class="infoTitle">Map Overview</p>
 	</div>
 </div>
 
