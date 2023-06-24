@@ -2311,7 +2311,7 @@ function hideHotkeyMenu() {
 }
 
 function changeMapDimensions() {
-  confirmAction("Enter new map width", 4, "Change", "Cancle", true);
+  confirmAction("Enter new map width", 4, "Change", "Cancel", true);
   theMap.style.width = mapWidth * 20;
   theMap.style.height = mapWidth * 20;
 }
@@ -2475,7 +2475,7 @@ function confirmAction(
       }
       case 4: {
         longtemp = document.getElementById("confirmInputBox").value;
-        confirmAction("Enter new map height", 4.1, "Change", "Cancle", true);
+        confirmAction("Enter new map height", 4.1, "Change", "Cancel", true);
         break;
       }
       case 4.1: {
