@@ -1,0 +1,2451 @@
+let theMap = document.getElementById("MapEditorMap");
+let mapStuff = document.getElementById("MapStuff");
+
+let bombSpotSprite = document.querySelectorAll(".bombSpot");
+let spawnSprite = document.querySelectorAll(".spawnPoint");
+
+let allTowers;
+let allWalls;
+
+let towerID = [];
+let towerXpos = [];
+let towerYpos = [];
+let towerColor = [];
+let wallTower1 = [];
+let wallTower2 = [];
+let shadedAreas = [];
+
+let mapWidth = 210;
+let mapHeight = 120;
+let kothBounds = [];
+let bombSpotsT = []; //0, {x : 0, y : 0}, {x : 0, y : 0}
+let spawnPointsS = [];
+let mapName = "map";
+
+let selectedTower = 0;
+
+let coppiedTowers = {
+  Xpos: [],
+  Ypos: [],
+  ID: [],
+  color: [],
+};
+let coppiedWalls = {
+  towerOne: [],
+  towerTwo: [],
+};
+
+let pastActions = [];
+let undoneActions = [];
+
+let pastActionDeep = 0;
+
+let realMousePos = {
+  x: 0,
+  y: 0,
+};
+let mousePos = {
+  x: 0,
+  y: 0,
+};
+let uncutMouseCoords = {
+  x: 0,
+  y: 0,
+};
+
+let zoomingMouseCoords = {
+  x: 0,
+  y: 0,
+};
+
+let onZooming = false;
+
+let previousTowers = [];
+
+let selectedTowerColor = 1;
+
+let temp;
+let temp2;
+let longtemp;
+
+let globalTestVariable = 0;
+
+let towerHasBeenSelectedNew = false;
+
+let loadedFile = [];
+
+let overallBehavior = "normal";
+
+let mapZoom = 1;
+
+let mapIntervallTempSpeed = [0, 0];
+
+let i = 1; //in case of error, change back to '0'
+
+let Ctrl = false;
+let Shift = false;
+let Enter = false;
+let G_snapToGrid = false;
+let R_Rotate = false;
+
+let upW = false;
+let leftA = false;
+let downS = false;
+let rightD = false;
+
+let movementSpeed = 4;
+
+let hotkeys = {
+  Ctrl: "Control",
+  Shift: "Shift",
+  Enter: "Enter",
+  Delete: "Delete",
+  ArrowUp: "ArrowUp",
+  ArrowDown: "ArrowDown",
+  ArrowLeft: "ArrowLeft",
+  ArrowRight: "ArrowRight",
+  g: "g",
+  b: "b",
+  r: "r",
+  c: "c",
+  v: "v",
+  n: "n",
+  z: "z",
+  y: "y",
+  w: "w",
+  a: "a",
+  s: "s",
+  d: "d",
+  f: "f",
+  Plus: "+",
+  Minus: "-",
+  Zero: "0",
+  One: "1",
+  Two: "2",
+  Three: "3",
+  Four: "4",
+};
+
+let hotkeyToChange;
+let currentHotkey = -1;
+
+let snapRadius = 40;
+
+let startChunkSelection = false;
+let chunkSelector;
+let startX = 0;
+let startY = 0;
+let currentX = 0;
+let currentY = 0;
+
+let lockUnselect = false;
+
+let currentPage = 1;
+
+const colors = {
+  1: "rgb(77,77,77)",
+  2: "rgb(61,93,255)",
+  3: "rgb(253,53,53)",
+  4: "rgb(0,128,55)",
+  5: "rgb(255,128,42)",
+  6: "rgb(146,75,255)",
+  7: "rgb(85,213,255)",
+  8: "rgb(24,226,31)",
+  9: "rgb(246,89,255)",
+  10: "rgb(247,255,42)",
+  11: "rgb(255,95,174)",
+  12: "rgb(147,254,0)",
+  13: "rgb(0,255,188)",
+  14: "rgb(0,0,0)",
+};
+//'rgb (x,x,x )' for ghost towers
+
+let buildViewMover = document.getElementById("buildView");
+let softlockViewMover = document.getElementById("softlockView");
+
+let openMenu = false;
+
+let pathDistance = 0;
+
+document.getElementById("showMenu").style.display = "none";
+document.getElementById("instructions").style.display = "none";
+document.getElementById("helpPage2").style.display = "none";
+document.getElementById("helpPage3").style.display = "none";
+document.getElementById("hotkeys").style.display = "none";
+document.getElementById("uploadMapFileButton").style.display = "none";
+document.getElementById("chunkSelection").style.display = "none";
+document.getElementById("confirm").style.display = "none";
+document.getElementById("downloadMapOptions").style.display = "none";
+document.getElementById("tower-info").style.display = "none";
+document.getElementById("colorPicker").style.display = "none";
+
+function buildTower() {
+  //console.log("Click detected (" + event.button + ")");
+  if (event.button != 0) {
+    // left click
+    //console.log("Leftclick detected");
+  }
+  if (true) {
+    //event.button === 0
+    // right click
+
+    //console.log("Rightclick detected");
+    let mouseX = mousePos.x; //event.clientX;
+    let mouseY = mousePos.y; //event.clientY;
+    /*if(G_snapToGrid){
+	    if(mouseX%snapRadius > (snapRadius/2)){
+	      mouseX += snapRadius-(mouseX%snapRadius);
+	    }else{mouseX -= mouseX%snapRadius;}
+	    if(mouseY%snapRadius > (snapRadius/2)){
+	      mouseY += snapRadius-(mouseY%snapRadius);
+	    }else{mouseY -= mouseY%snapRadius;}
+	  }*/
+    createTower(mouseX, mouseY, i, selectedTowerColor);
+
+    temp2 = towerID.length - 1;
+
+    if (selectedTower != -1) {
+      buildWall();
+    }
+    selectedTower = towerID.length - 1;
+
+    handleSelectTower(towerID[towerID.length - 1]);
+  }
+}
+
+function createTower(XposTower, YposTower, IdTower, ColorTower) {
+  let b = IdTower;
+  //let img = new Image(24, 24);  //size of tower
+  let img = document.createElement("div");
+  //img.style.opacity = 0.5;
+  img.classList.add("tower");
+  img.classList.add("clickable");
+  img.style.left = XposTower - 12;
+  img.style.top = YposTower - 12; //always half of towersize offset, so it appears ceneter under mousclick
+  img.addEventListener("click", function () {
+    //add onclick function to everytower to detect clicks on them, so you can select each one easily
+    handleSelectTower(b - 1);
+  });
+  /*document.body*/ theMap.appendChild(img);
+
+  towerID.push(b);
+  towerXpos.push(XposTower);
+  towerYpos.push(YposTower); //add tower ID as well as X and Y coords of new tower to array
+  if (isNaN(ColorTower)) {
+    towerColor.push(1);
+  } else {
+    towerColor.push(ColorTower);
+  }
+  img.style.backgroundColor = numberToColor(ColorTower);
+  b++;
+  i++; //increase number of placed towers
+
+  //console.log("X-pos tower: " + XposTower);
+  //console.log("Y-pos tower: " + YposTower);
+  let someAction = {
+    actionType: "pT",
+    tID: [IdTower],
+  };
+  pastActions.push(someAction); //stores past action (tower placed) in global var for undo porpuse
+}
+
+function buildWall(towerOne, towerTwo) {
+  if (towerOne === undefined) {
+    //normally placed wall
+    //console.log('gonna place some walls here...');
+    let numberOfTowers = towerID.length;
+    if (numberOfTowers > 1) {
+      //only do if there´s more then one tower placed
+      /*let highlightedTowers = document.getElementsByClassName('tower');
+		if(highlightedTowers.length != towerID.length){//console.log("weird...");
+	        }
+	    numberOfTowers--;
+		for(let a=0; a<highlightedTowers.length; a++){
+		  if(highlightedTowers[a].classList.contains('highlighted')){createWall(a, numberOfTowers);}
+		}*/
+      let newTower = numberOfTowers - 1; //!here
+      let selectedTowers = getSelectedTowers();
+      console.log(selectedTowers);
+      selectedTowers.forEach((tower) => {
+        createWall(tower, newTower);
+      });
+    }
+  } else {
+    //if wall gets placed by map file
+    towerOne = convertIDtoArray(towerOne);
+    towerTwo = convertIDtoArray(towerTwo);
+
+    createWall(towerOne, towerTwo);
+  }
+}
+
+function createWall(one, two) {
+  let wallLength = Math.sqrt(
+    Math.pow(towerXpos[one] - towerXpos[two], 2) +
+      Math.pow(towerYpos[one] - towerYpos[two], 2)
+  ); //using trigeometry to calculate wall length
+  let htmlWall = document.createElement("div");
+  htmlWall.style.width = wallLength;
+  htmlWall.classList.add("wall");
+  let midX = (towerXpos[one] + towerXpos[two]) / 2; //X pos of mid
+  let midY = (towerYpos[one] + towerYpos[two]) / 2; //Y pos of mid
+  let topX = midX - wallLength / 2; //X pos of top left
+  let topY = midY - 6; //Y pos of top left; wall height/2
+  htmlWall.style.left = topX;
+  htmlWall.style.top = topY;
+  let rotation =
+    (Math.atan(
+      (towerYpos[one] - towerYpos[two]) / (towerXpos[one] - towerXpos[two])
+    ) *
+      180) /
+    Math.PI; //rotate wall correctly
+  if (isNaN(rotation)) {
+    rotation = 0;
+  }
+  htmlWall.style.transform = "rotate(" + rotation + "deg)";
+  htmlWall.style.backgroundColor = numberToColor(towerColor[one]);
+  theMap.appendChild(htmlWall);
+  wallTower1.push(towerID[one]);
+  wallTower2.push(towerID[two]); //save in wall Array
+}
+
+function buildShading(towerIDs) {
+  if (towerIDs == undefined) {
+    lookForEnshadedArea(closestWall);
+    //towerIDs = towerID;
+    createShading(getSelectedTowers());
+    return; //!!here!!
+  }
+  createShading(convertIDtoArray(towerIDs));
+}
+
+function closestWall() {
+  let nt = getNearestTower();
+  return nt;
+}
+
+function lookForEnshadedArea() {}
+
+function createShading(towerArray) {
+  //!!here!!
+  /*let svgShading = document.querySelector('#mapShadingSvg');
+	let polygonShading = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');*/
+  let coords = "";
+  let color = numberToColor(towerColor[towerArray[0]]);
+  color = color.replace("rgb", "rgba");
+  color = color.replace(")", ", 0.5)");
+  console.log("COLOR: " + color);
+  towerArray.forEach((c) => {
+    coords += towerXpos[c];
+    coords += ",";
+    coords += towerYpos[c];
+    coords += " ";
+  });
+  coords = coords.trimEnd();
+  /*polygonShading.setAttribute('points', coords);
+	polygonShading.setAttribute('fill', color);
+	polygonShading.setAttribute('stroke', 'black');
+	polygonShading.setAttribute('stroke-width', '2');
+	svgShading.appendChild(polygonShading);*/
+  createPolygon(coords, color);
+}
+function createPolygon(coords, color) {
+  //COORDS MUST BE READY-TO-USE STRING; SAME FOR COLOR
+  let svgShading = document.querySelector("#mapShadingSvg");
+  let polygonShading = document.createElementNS(
+    "http://www.w3.org/2000/svg",
+    "polygon"
+  );
+  console.log("COORDS: " + coords);
+  polygonShading.setAttribute("points", coords);
+  polygonShading.setAttribute("fill", color);
+  polygonShading.setAttribute("stroke", "black");
+  polygonShading.setAttribute("stroke-width", ".1");
+  svgShading.appendChild(polygonShading);
+}
+
+function buildDifferentThing(whichThing) {
+  switch (whichThing[0]) {
+    case "bomb": {
+      let coords = {
+        x: mousePos.x / 20,
+        y: mousePos.y / 20, //pixel to coords
+      };
+      createDifferentThing(["bomb", whichThing[1]], coords);
+      break;
+    }
+    case "spawn": {
+      let coords = {
+        x: mousePos.x / 20 - 4.5,
+        y: mousePos.y / 20 - 4.5,
+      };
+      createDifferentThing(["spawn", whichThing[1]], coords);
+      //smth
+      break;
+    }
+  }
+}
+
+function createDifferentThing(whichThing, coords) {
+  switch (whichThing[0]) {
+    case "bomb": {
+      let whichBomb = whichThing[1];
+      bombSpotSprite[whichBomb].style.left = coords.x * 20 - 120;
+      bombSpotSprite[whichBomb].style.top = coords.y * 20 - 120; //100 - half size of bomb spot so they´re cenetered around your mouse
+      if (bombSpotSprite[whichBomb].classList.contains("hidden"))
+        bombSpotSprite[whichBomb].classList.remove("hidden");
+      bombSpotsT[whichBomb] = { x: coords.x, y: coords.y };
+      break;
+    }
+    case "spawn": {
+      let whichSpawn = whichThing[1];
+      spawnSprite[whichSpawn].style.left = coords.x * 20 - 30;
+      spawnSprite[whichSpawn].style.top = coords.y * 20 - 30; //offset spawn so it renders correctly (also weird thing as spawns coords get offset in map file unlike bpmb smh)
+      if (spawnSprite[whichSpawn].classList.contains("hidden"))
+        spawnSprite[whichSpawn].classList.remove("hidden");
+      spawnPointsS[whichSpawn] = { x: coords.x, y: coords.y };
+      break;
+    }
+  }
+}
+
+function updateWall(wallID, one, two) {
+  one = convertIDtoArray(one);
+  two = convertIDtoArray(two);
+  let wallItself = document.getElementsByClassName("wall");
+  wallItself = wallItself[wallID];
+  let wallLength = Math.sqrt(
+    Math.pow(towerXpos[one] - towerXpos[two], 2) +
+      Math.pow(towerYpos[one] - towerYpos[two], 2)
+  );
+  wallItself.style.width = wallLength; //wallLength
+  temp = (towerXpos[one] + towerXpos[two]) / 2; //X pos of mid
+  temp2 = (towerYpos[one] + towerYpos[two]) / 2; //Y pos of mid
+  temp = temp - wallLength / 2; //X pos of top left
+  temp2 = temp2 - 7; //Y pos of top left
+  wallItself.style.left = temp;
+  wallItself.style.top = temp2;
+  let rotation =
+    (Math.atan(
+      (towerYpos[one] - towerYpos[two]) / (towerXpos[one] - towerXpos[two])
+    ) *
+      180) /
+    Math.PI; //rotate wall correctly
+  if (isNaN(rotation)) {
+    rotation = 0;
+  }
+  wallItself.style.transform = "rotate(" + rotation + "deg)";
+  wallItself.style.backgroundColor = numberToColor(towerColor[one]);
+  //console.log("Wall Updated!!");
+  //console.log("Rotation°: " + rotation);
+}
+
+function numberToColor(number) {
+  if (number == "" || number == undefined) {
+    return colors[1];
+  }
+  //return grey on default
+  number = Number(number);
+  if (number < 1 || number > 14) {
+    number = 14;
+  }
+  //all colors outside 1 - 13 spectrum will be threated as black
+  let color = colors[number];
+  return color;
+}
+
+function connectTowers(ids) {
+  let allTowers = document.querySelectorAll(".tower");
+  let towersToConnect = [];
+  let someAction = {
+    actionType: "cnT",
+    tID: [],
+  };
+  if (ids == undefined) {
+    ids = convertArrayToID(getSelectedTowers());
+  }
+  ids.forEach((c) => {
+    towersToConnect.push(c);
+    someAction.tID.push(c);
+  });
+  if (towersToConnect.length < 1) {
+    console.log("No towers to connect!!");
+    return;
+  }
+  if (towersToConnect.length >= 20) {
+    temp = towersToConnect.length;
+    temp = (temp + 1) * (temp / 2) - temp;
+    if (
+      !confirm(
+        "Are you sure you want to execute this action?\nDoing so would place " +
+          temp +
+          " walls!"
+      )
+    ) {
+      return;
+    }
+  }
+  pastActions.push(someAction);
+  temp2 = towersToConnect.length;
+  let copyOfTowers = [];
+  towersToConnect.forEach((tower) => {
+    copyOfTowers.forEach((tower2) => {
+      buildWall(tower, tower2);
+    });
+    copyOfTowers.push(tower);
+  });
+  /*towersToConnect.forEach((tower, i) => {
+  		towersToConnect.slice(i+1).forEach(otherTower => {
+    		buildWall(tower, otherTower);
+  		});
+	});*/ // <-- isra´s version - works just fine as well
+}
+
+function shieldTowers() {
+  let allTowers = document.getElementsByClassName("tower");
+  let someAction = {
+    actionType: "sT",
+    tID: [],
+  };
+
+  let wantedTowers = getSelectedTowers();
+  wantedTowers.forEach((someTower) => {
+    allTowers[someTower].classList.add("shielded");
+    someAction.tID.push(towerID[someTower]);
+  });
+  pastActions.push(someAction);
+  updateTowerInfo(1); // 1 - new tower
+  //pastActions.push(someAction);
+}
+
+function toggleShielded(ids) {
+  allTowers = document.getElementsByClassName("tower");
+  ids = convertIDtoArray(ids);
+  console.log("TOGGLE");
+  console.log(ids);
+  let someAction = {
+    actionType: "sT",
+    tID: [],
+  };
+  ids.forEach((c) => {
+    allTowers[c].classList.toggle("shielded");
+    someAction.tID.push(towerID[c]);
+  });
+  pastActions.push(someAction);
+}
+
+function selectTower(towerToSelect) {
+  let allTowers = document.querySelectorAll(".tower"); //get all towers - first tower is same as first value from towerID (allTowers[x] ^ towerID[x])
+  if (towerToSelect == -1 && overallBehavior == "normal") {
+    // -1 -> all towers will be selected
+    allTowers.forEach((tower) => {
+      tower.classList.add("highlighted");
+    });
+    selectedTower = 0; //not -1 - gonna change to all soon
+    updateTowerInfo(1); // 1- new tower
+    return;
+  } else {
+    let thisTower = convertIDtoArray(towerToSelect);
+    //if(allTowers[t].classList.contains("highlighted")) return;
+
+    if (overallBehavior == "pathCalc") {
+      allTowers[thisTower].classList.add("highlighted");
+      startPathCalculation(1); // 1 - next tower
+      updateTowerInfo(1); // 1- new tower
+      return;
+    }
+
+    allTowers[thisTower].classList.toggle("highlighted");
+    selectedTower = allTowers[thisTower];
+  }
+
+  //destroyTower(t);
+  updateTowerInfo(1); // 1- new tower
+}
+
+function selectChunk(state) {
+  switch (state) {
+    case 0: {
+      //mouse down
+      if (event.button != 1) {
+        return;
+      }
+      //console.log("mouse down!!! - " + event.button);
+      chunkSelector = document.getElementById("chunkSelection");
+      startX = uncutMouseCoords.x; //event.clientX;  // *2
+      startY = uncutMouseCoords.y; //event.clientY;
+      chunkSelector.style.left = startX;
+      chunkSelector.style.top = startY;
+      chunkSelector.style.width = 0;
+      chunkSelector.style.height = 0;
+      startChunkSelection = 1;
+      break;
+    }
+    case 1: {
+      //mouse move
+      //console.log("mouse move!!!");
+      if (startChunkSelection > 0) {
+        //only if mousedown was triggered - not when just occasionally moving mouse xd
+        startChunkSelection = 2;
+        hideBuildView(0);
+        chunkSelector.style.display = "inline";
+        currentX = uncutMouseCoords.x; //event.clientX;  // *2
+        currentY = uncutMouseCoords.y; //event.clientY;
+        if (currentX >= startX) {
+          chunkSelector.style.width = currentX - startX - 1;
+          chunkSelector.style.left = startX;
+        } else {
+          chunkSelector.style.width = startX - currentX - 2;
+          chunkSelector.style.left = currentX + 2;
+        }
+        if (currentY >= startY) {
+          chunkSelector.style.height = currentY - startY - 1;
+          chunkSelector.style.top = startY;
+        } else {
+          chunkSelector.style.height = startY - currentY - 2;
+          chunkSelector.style.top = currentY + 2;
+        }
+      }
+      break;
+    }
+    case 2: {
+      //mouse up
+      if (startChunkSelection == 2) {
+        hideBuildView(1);
+        if (Ctrl == true) {
+        } else if (Shift == true) {
+          unselect();
+          selectTower(-1);
+          selectedTower = 0; //not -1
+          startChunkSelection = 0; //chunkselection will no longer be triggered uppon releasing mouse
+          //console.log("mouse up!!!");
+          document.getElementById("chunkSelection").style.display = "none";
+          return;
+        } else {
+          unselect();
+        }
+        //lockUnselect = true;
+        if (currentX < startX) {
+          //startX always leftmost X coord
+          temp = currentX;
+          currentX = startX;
+          startX = temp;
+          startX--;
+        }
+        if (currentY < startY) {
+          //startY always topmost Y coord
+          temp = currentY;
+          currentY = startY;
+          startY = temp;
+          startY--;
+        }
+        let allTowers = document.querySelectorAll(".tower");
+
+        Array.from(allTowers).forEach((tower, index) => {
+          if (towerXpos[index] > startX) {
+            if (towerXpos[index] < currentX) {
+              if (towerYpos[index] > startY) {
+                if (towerYpos[index] < currentY) {
+                  //could be done in one expression, decreases calculation time by like 1 ms lol
+                  tower.classList.toggle("highlighted");
+                  /*console.log("highlighted - tower " + i);
+					console.log("<<<<<<<<!!!!!!!!!!!!!!!>>>>>>>>");*/
+                }
+              }
+            }
+          }
+        });
+
+        updateTowerInfo(1); // 1 - new towers
+      }
+      selectedTower = 0; //not -1
+      startChunkSelection = 0; //chunkselection will no longer e triggered uppon releasing mouse
+      //console.log("mouse up!!!");
+      document.getElementById("chunkSelection").style.display = "none";
+      break;
+    }
+  }
+}
+
+function destroyTower(tID) {
+  if (tID === undefined) {
+    let thoseTowers = getSelectedTowers();
+
+    deleteTower(thoseTowers);
+
+    selectedTower = -1; //none
+    updateTowerInfo(0); // 0 - no tower*/
+  } else {
+    temp = convertIDtoArray(tID);
+    deleteTower(temp);
+  }
+}
+
+function deleteTower(arrayIDs) {
+  arrayIDs.sort(function (a, b) {
+    return b - a;
+  });
+  let someAction = {
+    actionType: "dT",
+    tID: [],
+    x: [],
+    y: [],
+    color: [],
+    wall1: [],
+    wall2: [],
+  };
+  //for(let c=arrayIDs.length-1; c>=0; c--){
+  let allTowers = document.getElementsByClassName("tower"); //document.querySelectorAll('.tower');
+  let allWalls = document.getElementsByClassName("wall"); //document.querySelectorAll('.wall');
+  arrayIDs.forEach((c) => {
+    temp = c;
+    someAction.tID.push(towerID[temp]);
+    someAction.x.push(towerXpos[temp]);
+    someAction.y.push(towerYpos[temp]);
+    someAction.color.push(towerColor[temp]);
+
+    temp2 = towerID[temp];
+    //console.log(allTowers);
+    allTowers[temp].remove();
+    towerID.splice(temp, 1);
+    towerXpos.splice(temp, 1);
+    towerYpos.splice(temp, 1);
+    towerColor.splice(temp, 1);
+
+    for (c2 = 0; c2 < wallTower1.length; c2++) {
+      //!!here
+      if (wallTower1[c2] == temp2 || wallTower2[c2] == temp2) {
+        someAction.wall1.push(wallTower1[c2]);
+        someAction.wall2.push(wallTower2[c2]);
+
+        wallTower1.splice(c2, 1);
+        wallTower2.splice(c2, 1);
+        allWalls[c2].remove();
+        c2--;
+      }
+    }
+    /*wallTower1.forEach((wall1, index) => {
+			if(wall1 == temp2 || wallTower2[index] == temp2){
+
+			}
+		})*/
+  });
+  pastActions.push(someAction);
+}
+
+function deleteWalls(ids) {
+  let someAction = {
+    actionType: "cnT",
+    tID: [],
+  };
+  /*console.log(ids);//!here
+	console.log(wallTower1);
+	console.log(wallTower2);*/
+  let allWalls = document.querySelectorAll(".wall"); //document.getElementsByClassName('wall');
+  let copyIDs = [];
+  ids.forEach((id) => {
+    someAction.tID.push(id);
+    copyIDs.push(id);
+  });
+  ids.forEach((id) => {
+    copyIDs.splice(0, 1);
+    copyIDs.forEach((secondID) => {
+      let wallDeleted = false;
+      wallTower1.forEach((towerOneID, index) => {
+        if (
+          ((towerOneID == id && wallTower2[index] == secondID) ||
+            (towerOneID == secondID && wallTower2[index] == id)) &&
+          !wallDeleted
+        ) {
+          wallTower1.splice(index, 1);
+          wallTower2.splice(index, 1);
+          allWalls[index].remove();
+          wallDeleted = true;
+        }
+      });
+    });
+  });
+  pastActions.push(someAction);
+}
+
+function convertIDtoArray(IDtoConvert) {
+  let type = typeof IDtoConvert;
+  switch (type) {
+    case "object": {
+      let arrayIDs = [];
+      IDtoConvert.forEach((id) => {
+        let thisArray = 0;
+        /*for(let c2=0; c2<towerID.length; c2++){
+					if(id == towerID[c2]){
+						arrayIDs.push(c2);
+						break;
+					}
+				}*/
+        towerID.forEach((tower, index) => {
+          if (tower == id) {
+            thisArray = index;
+          }
+        });
+        arrayIDs.push(thisArray);
+      });
+      return arrayIDs;
+    }
+    case "number": {
+      let wantedID = 0;
+      towerID.forEach((id, index) => {
+        if (id == IDtoConvert) {
+          wantedID = index;
+        }
+      });
+      return wantedID;
+    }
+    default: {
+      alert(
+        "Unexpected Error encountered!!\nPlease report this error message to Marmuzzcju#5615 and check the console for error messages"
+      );
+      return 0;
+    }
+  }
+}
+
+function convertArrayToID(ArrayToConvert) {
+  let ID = [];
+  ArrayToConvert.forEach((array) => {
+    ID.push(towerID[array]);
+  });
+  return ID;
+}
+
+function unselect() {
+  //console.log("UNSELECT TRIGGERED");
+  /*if(lockUnselect == true){
+	  lockUnselect = false;
+	  return;
+	}*/
+  selectedTower = -1;
+  let towers = document.getElementsByClassName("highlighted");
+  Array.from(towers).forEach((thisTower) => {
+    thisTower.classList.remove("highlighted");
+  });
+  updateTowerInfo(0); // 0 - no tower
+}
+
+function handleSelectTower(b2) {
+  towerHasBeenSelectedNew = true;
+  if (overallBehavior == "pathCalc") {
+    unselect();
+    selectTower(b2);
+  } else if (Ctrl === true) {
+    selectTower(b2); //if ctrl pressed - add tower to selection
+  } else if (Shift === true) {
+    unselect();
+    selectTower(-1); //if shift pressed - select all towers
+  } else {
+    unselect();
+    selectTower(b2); //if neither are pressed - select only clicked tower
+  }
+}
+
+function checkUnselect() {
+  if (event.button != 0) {
+    return;
+  }
+  towerHasBeenSelectedNew = false;
+  setTimeout(function () {
+    if (!towerHasBeenSelectedNew) {
+      unselect();
+      return;
+    } else {
+      return;
+    }
+  }, 50);
+}
+
+function generateMapFile() {
+  let text = "";
+  mapWidth = document.getElementById("mapWidth").value;
+  mapHeight = document.getElementById("mapHeight").value;
+  temp = document.getElementById("radioDeflyMap").checked;
+  if (!temp) {
+    //astrolly map format
+    // following part is for astrolly map file
+
+    temp2 = document.getElementById("mapAuthorName").value;
+    text =
+      '{"name":"' +
+      mapName +
+      '","author":"' +
+      temp2 +
+      '","width":' +
+      mapWidth * 20 +
+      ',"height":' +
+      mapHeight * 20 +
+      ',"nodes":{';
+    /*for(let c = 0; c < towerID.length; c++){  //get towers
+	    text += '"' + towerID[c] + '":{"nodeId":"' + towerID[c] + '","x":' + towerXpos[c] + ',"y":' + towerYpos[c] + '}';
+	    if((c+1) < towerID.length){text += ',';}
+	  }*/
+    towerID.forEach((id, index) => {
+      text +=
+        '"' +
+        id +
+        '":{"nodeId":"' +
+        id +
+        '","x":' +
+        towerXpos[index] +
+        ',"y":' +
+        towerYpos[index] +
+        "}";
+      if (index + 1 < towerID.length) {
+        text += ",";
+      }
+    });
+    text += '},"edges":[';
+
+    /*for(let u = 0; u < wallTower1.length; u++){
+	    text += '{"fromNodeId":"' + wallTower1[u] + '","toNodeId":"' + wallTower2[u] + '"}';
+	    if((u+1) < wallTower1.length){text += ',';}
+	  }*/
+    wallTower1.forEach((wall1, index) => {
+      text +=
+        '{"fromNodeId":"' + wall1 + '","toNodeId":"' + wallTower2[index] + '"}';
+      if (index + 1 < wallTower1.length) {
+        text += ",";
+      }
+    });
+    text += '],"regions":[[]]'; //],"regions":[[{"x":349,"y":699}
+    //console.log("text file - " + text);
+    // shaded areas here
+
+    text +=
+      ',"towerRadius":14,"wallWidth":14,"bombRadius":200,"spots":[{"position":{"x":200,"y":900},"label":"1","id":"a"},{"position":{"x":1799,"y":900},"label":"2","id":"b"}],"spawns":{"attack":{"position":{"x":899,"y":1650},"direction":90},"defense":{"position":{"x":900,"y":0},"direction":90}}}';
+    // rest stuff above
+    //console.log("text file - " + text);
+
+    return text;
+  } else {
+    //defly map format
+    if (isNaN(mapWidth) || mapWidth == undefined || mapWidth == "") {
+      mapWidth = 210;
+    }
+    if (isNaN(mapHeight) || mapHeight == undefined || mapHeight == "") {
+      mapHeight = 120;
+    }
+    text += "MAP_WIDTH " + mapWidth + "\n";
+    text += "MAP_HEIGHT " + mapHeight + "\n";
+    if (!isNaN(kothBounds[0])) {
+      text +=
+        "KOTH " +
+        kothBounds[0] +
+        " " +
+        kothBounds[1] +
+        " " +
+        kothBounds[2] +
+        " " +
+        kothBounds[3] +
+        "\n";
+    }
+    /*temp=0;
+	    for(let i=0; i<bombSpotsT.length; i+=2){
+		  text += "t " + temp + " " + bombSpotsT[i] + " " + bombSpotsT[i+1] + "\n";
+		  temp++;
+		}
+		temp=1;
+		for(let i=0; i<spawnPointsS.length; i+=2){
+		  text += "s " + temp + " " + spawnPointsS[i] + " " + spawnPointsS[i+1] + "\n";
+		  temp++;
+		}*/
+    /*bombSpotsT.slice(1).forEach((bombCoords, index) => {
+			text += 't ' + index + ' ' + bombCoords.x + ' ' + bombCoords.y + '\n';
+		})*/
+    bombSpotsT.forEach((bombCoords, index) => {
+      text += "t " + index + " " + bombCoords.x + " " + bombCoords.y + "\n";
+    });
+    spawnPointsS.forEach((spawn, index) => {
+      text += "s " + (index + 1) + " " + spawn.x + " " + spawn.y + "\n";
+    });
+    /*for(let c = 0; c < towerID.length; c++){  //get towers
+	    text += "d " + towerID[c] + " " + (towerXpos[c]/20) + " " + (towerYpos[c]/20);
+        if(towerColor[c] != 1){
+		  text += " " + towerColor[c] + "\n";
+		}else{
+		  text += "\n";
+		}
+	  }*/
+    towerID.forEach((ID, c) => {
+      text += "d " + ID + " " + towerXpos[c] / 20 + " " + towerYpos[c] / 20;
+      if (towerColor[c] != 1) {
+        text += " " + towerColor[c] + "\n";
+      } else {
+        text += "\n";
+      }
+    });
+    /*for(let u = 0; u < wallTower1.length; u++){  //walls
+	    text += "l " + wallTower1[u] + " " + wallTower2[u] + "\n";
+	  }*/
+    wallTower1.forEach((nothing, c) => {
+      text += "l " + wallTower1[c] + " " + wallTower2[c] + "\n";
+    });
+    /*temp = shadedAreas.length;
+	  for(let g = 0; g < temp; g++){  //shaded
+	    text += shadedAreas[g];
+		if(g<temp){text+= "\n";}
+	  }*/
+    shadedAreas.forEach((area) => {
+      text += "z ";
+      area.forEach((point) => {
+        text += point + " ";
+      });
+      text = text.trimEnd();
+      text += "\n";
+    });
+    /*allTowers = document.getElementsByClassName("tower");
+	  for(let c=0; c<allTowers.length; c++){
+		if(allTowers[c].classList.contains("shielded")){
+			text += "\n";
+			text += "l " + towerID[c] + " " + towerID[c];
+			text += "\n";
+			text += "z " + towerID[c] + " " + towerID[c];
+		}
+	  }*/
+    let allTowers = document.querySelectorAll(".tower");
+    Array.from(allTowers).forEach((tower, c) => {
+      if (tower.classList.contains("shielded")) {
+        text += "\n";
+        text += "l " + towerID[c] + " " + towerID[c];
+        text += "\n";
+        text += "z " + towerID[c] + " " + towerID[c];
+      }
+    });
+    //console.log("!!!>> " + shadedAreas[shadedAreas.length-1]);
+    return text;
+  }
+}
+
+function CopyFile() {
+  // Get the text content of the element
+
+  // Create a temporary element for copying
+  var temp = document.createElement("textarea");
+  temp.value = generateMapFile();
+  document.body.appendChild(temp);
+
+  // Select the text and copy it to the clipboard
+  temp.select();
+  document.execCommand("copy");
+
+  // Remove the temporary element
+  document.body.removeChild(temp);
+} //=== thx to Alex for providing that code  xd  ===
+
+function downloadMapFile() {
+  mapName = document.getElementById("mapName").value;
+  var filename = mapName + "-deflyMap.txt";
+  var element = document.createElement("a");
+  element.setAttribute(
+    "href",
+    "data:text/plain;charset=utf-8," + encodeURIComponent(generateMapFile())
+  );
+  element.setAttribute("download", filename);
+
+  element.style.display = "none";
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
+
+function loadMapFile() {
+  temp = document.getElementsByName("mapLoadingType");
+  let startingTowerID = 0;
+  if (temp[0].checked) {
+    //new map
+    deleteExistingMap();
+  } else {
+    startingTowerID = towerID[towerID.length - 1] + 1;
+  }
+  console.log(loadedFile);
+  for (let n = 0; n < loadedFile.length; n++) {
+    //!!here
+    switch (loadedFile[n]) {
+      case "MAP_WIDTH":
+        if (startingTowerID == 0) {
+          //if new map
+          mapWidth = Number(loadedFile[n + 1]);
+          if (!(mapWidth > 0)) {
+            mapWidth = 210;
+            break;
+          }
+          document.getElementById("mapWidth").value = mapWidth;
+          theMap.style.width = mapWidth * 20;
+          let svg = document.querySelector("#mapShadingSvg");
+          svg.setAttribute("width", mapWidth * 20);
+        } else {
+          //if on top - use higher value
+          temp = Number(loadedFile[n + 1]);
+          if (mapWidth < temp) {
+            mapWidth = temp;
+            document.getElementById("mapWidth").value = mapWidth;
+            theMap.style.width = mapWidth * 20;
+            let svg = document.querySelector("#mapShadingSvg");
+            svg.setAttribute("width", mapWidth * 20);
+          }
+        }
+        break;
+      case "MAP_HEIGHT":
+        if (startingTowerID == 0) {
+          //if new map
+          mapHeight = Number(loadedFile[n + 1]);
+          if (!(mapHeight > 0)) {
+            mapHeight = 120;
+            break;
+          }
+          document.getElementById("mapHeight").value = mapHeight;
+          theMap.style.height = mapHeight * 20;
+          let svg = document.querySelector("#mapShadingSvg");
+          svg.setAttribute("height", mapHeight * 20);
+        } else {
+          //if on top
+          temp = Number(loadedFile[n + 1]);
+          if (mapHeight < temp) {
+            mapHeight = temp;
+            document.getElementById("mapHeight").value = mapHeight;
+            theMap.style.height = mapHeight * 20;
+            let svg = document.querySelector("#mapShadingSvg");
+            svg.setAttribute("height", mapHeight * 20);
+          }
+        }
+        break;
+      case "KOTH":
+        console.log(
+          "KOTH: " +
+            loadedFile[n + 0] +
+            loadedFile[n + 1] +
+            loadedFile[n + 2] +
+            loadedFile[n + 3] +
+            loadedFile[n + 4]
+        );
+        for (let i = 0; i < 4; i++) {
+          //!!here
+          kothBounds[i] = loadedFile[n + i + 1];
+        }
+        break;
+      case "t": //bomb spots
+        //bombSpotsT.push({x : loadedFile[n+2], y : loadedFile[n+3]});
+        createDifferentThing(["bomb", loadedFile[n + 1]], {
+          x: loadedFile[n + 2],
+          y: loadedFile[n + 3],
+        });
+        break;
+      case "s": //spawns
+        createDifferentThing(["spawn", loadedFile[n + 1] - 1], {
+          x: loadedFile[n + 2],
+          y: loadedFile[n + 3],
+        });
+        //-here
+        /*let color = "rgba(255, 53, 53, 0.5)";
+		  if(loadedFile[n+1] == 1) color = "rgba(61, 93, 255, 0.5)";
+		  let startX = loadedFile[n+2]*20;
+		  let startY = loadedFile[n+3]*20;
+		  let coords = startX + "," + startY + " " + (startX + 180) + "," + startY + " " + (startX + 180) + "," + (startY + 180) + " " + startX + "," + (startY + 180);
+		  createPolygon(coords, color);*/
+        break;
+      case "d": //tower (dot)
+        temp = loadedFile[n + 4];
+        if (temp == undefined || temp == "") temp = 1;
+        console.log(temp);
+        if (isNaN(temp)) {
+          temp = 1;
+        }
+        createTower(
+          loadedFile[n + 2] * 20,
+          loadedFile[n + 3] * 20,
+          Number(loadedFile[n + 1]) + startingTowerID,
+          temp
+        );
+        if (Number(loadedFile[n + 1]) + startingTowerID >= i) {
+          i = Number(loadedFile[n + 1]) + startingTowerID + 1;
+        }
+        break;
+      case "l": //wall (line)
+        //console.log('wall: ' + loadedFile[n] + " " + loadedFile[n+1] + " " + loadedFile[n+2]);
+        buildWall(
+          Number(loadedFile[n + 1]) + startingTowerID,
+          Number(loadedFile[n + 2]) + startingTowerID
+        ); //+1 +1
+        break;
+      case "z": //shaded area (zone)
+        //console.log('shaded: ' + loadedFile[n]);
+        //temp = '';
+        let thisShadingsID = [];
+        for (let r = 1; r < loadedFile.length; r++) {
+          //!!here
+          if (isNaN(loadedFile[n + r]) || !(loadedFile[n + r] > 0)) {
+            r = loadedFile.length;
+            continue;
+          }
+          //temp += " " + (Number(loadedFile[n+r])+startingTowerID);
+          thisShadingsID.push(Number(loadedFile[n + r]) + startingTowerID);
+        }
+        //temp = temp.trimEnd();
+        //shadedAreas.push("z" + temp);
+        shadedAreas.push(thisShadingsID);
+        buildShading(thisShadingsID);
+        //console.log("maybe here? - " + temp);
+        break;
+      case "!!!END!!!":
+        //ends map loading
+        return;
+      default:
+        //console.log('other: ' + loadedFile[n]);
+        continue;
+    }
+  }
+  //console.log(loadedFile[loadedFile.length-2]);
+}
+
+function deleteExistingMap() {
+  //!!here
+  temp = towerID.length;
+  let towers = document.getElementsByClassName("tower");
+  let walls = document.getElementsByClassName("wall");
+  for (t = 0; t < temp; t++) {
+    towerID.splice(0, 1);
+    towerXpos.splice(0, 1);
+    towerYpos.splice(0, 1);
+    towerColor.splice(0, 1);
+    towers[0].remove();
+  }
+  temp = wallTower1.length;
+  for (f = 0; f < temp; f++) {
+    wallTower1.splice(0, 1);
+    wallTower2.splice(0, 1);
+    walls[0].remove();
+  }
+  let shadings = document.querySelectorAll("polygon");
+  //shadings.remove();
+  shadedAreas = [];
+  i = 1;
+
+  spawnPointsS = [];
+  bombSpotsT = [];
+
+  updateTowerInfo(0); // 1 - no tower
+
+  pastActions = [];
+  undoneActions = [];
+}
+
+function getFile(input) {
+  let file = input.files[0];
+
+  let reader = new FileReader();
+
+  reader.readAsText(file);
+
+  reader.onload = function () {
+    console.log(reader.result);
+    loadedFile = reader.result.split(/\s+/);
+    loadMapFile();
+  };
+
+  reader.onerror = function () {
+    console.log(reader.error);
+    return;
+  };
+}
+
+function showHelpPage(page) {
+  document.getElementById("helpPage" + currentPage).style.display = "none";
+  switch (page) {
+    case 1: //next page
+      currentPage = currentPage % 3;
+      currentPage++;
+      break;
+
+    case -1: //previous page
+      currentPage--;
+      if (currentPage === 0) {
+        currentPage = 3;
+      }
+      break;
+  }
+  document.getElementById("helpPage" + currentPage).style.display = "inline";
+  document.getElementById("pageCount").innerHTML = currentPage + "/3";
+}
+
+function showDownloadMapOptions() {
+  mapStuff.classList.add("blurred");
+  document.getElementById("downloadMapOptions").style.display = "inline";
+  document.getElementById("mapName").value = "Your map name";
+  document.getElementById("mapAuthorName").value = "Your nickname";
+  if (isNaN(mapWidth)) {
+    document.getElementById("mapWidth").value = 210;
+  } else {
+    document.getElementById("mapWidth").value = mapWidth;
+  }
+  if (isNaN(mapHeight)) {
+    document.getElementById("mapHeight").value = 120;
+  } else {
+    document.getElementById("mapHeight").value = mapHeight;
+  }
+}
+
+function updateMouseCoords() {
+  realMousePos.x = event.clientX;
+  realMousePos.y = event.clientY;
+}
+
+function moveBuildView() {
+  mousePos = transformClientToMapCoords(realMousePos);
+  uncutMouseCoords.x = mousePos.x;
+  uncutMouseCoords.y = mousePos.y;
+  if (G_snapToGrid) {
+    if (mousePos.x % snapRadius > snapRadius / 2) {
+      mousePos.x += snapRadius - (mousePos.x % snapRadius);
+    } else {
+      mousePos.x -= mousePos.x % snapRadius;
+    }
+    if (mousePos.y % snapRadius > snapRadius / 2) {
+      mousePos.y += snapRadius - (mousePos.y % snapRadius);
+    } else {
+      mousePos.y -= mousePos.y % snapRadius;
+    }
+  }
+  if (mousePos.x < 0) {
+    mousePos.x = 0;
+  }
+  if (mousePos.x > mapWidth * 20) {
+    mousePos.x = mapWidth * 20;
+  }
+  if (mousePos.y < 0) {
+    mousePos.y = 0;
+  }
+  if (mousePos.y > mapHeight * 20) {
+    mousePos.y = mapHeight * 20;
+  }
+  buildViewMover.style.left = mousePos.x - 11;
+  buildViewMover.style.top = mousePos.y - 11;
+  softlockViewMover.style.left = mousePos.x - 300;
+  softlockViewMover.style.top = mousePos.y - 300;
+  document.getElementById("coords-info-x").innerHTML = (
+    mousePos.x / 20
+  ).toFixed(2);
+  document.getElementById("coords-info-y").innerHTML = (
+    mousePos.y / 20
+  ).toFixed(2);
+  selectChunk(1);
+}
+
+function transformClientToMapCoords(originalCoords) {
+  let mapOffsetX = theMap.style.left.replace("px", "");
+  let mapOffsetY = theMap.style.top.replace("px", "");
+  let newCoords = {
+    x: originalCoords.x / mapZoom - mapOffsetX,
+    y: originalCoords.y / mapZoom - mapOffsetY,
+  };
+  return newCoords;
+}
+
+function changeSnapRange(newSnapRange) {
+  //let newSnapRange = prompt("Enter new snap range: ", snapRadius);
+  if (newSnapRange == null || newSnapRange == "") {
+    return;
+  } else {
+    if (isNaN(newSnapRange)) {
+      //NaN = Not a Number
+      alert("Input is not a number!!");
+    } else {
+      snapRadius = Number(newSnapRange) * 20;
+    }
+  }
+}
+
+function hideBuildView(OnOff) {
+  if (OnOff == 0) {
+    buildViewMover.style.display = "none";
+  } else {
+    buildViewMover.style.display = "inline";
+  }
+}
+
+/*function moveTowers(movingState){  // -- nothing --
+    switch(movingState){
+	  case 1:{  //mouse down
+        let allTowers = document.getElementsByClassName('tower');
+	    let selectedTowers = '';
+		let startingMouseXcoords = event.clie ntX;
+		let startingMouseYcoords = event.clie ntY;
+	    for(let e=0; e<temp.length; e++){
+	      if(temp[e].classList.contains('highlighted')){
+	        temp2.push(e);
+	      }
+	    }
+	    break;
+	  }
+	  case 2:{  //mouse move
+	    
+		break;
+	  }
+	  case 3:{  //mouse up
+	    
+		break;
+	  }
+    }
+}*/
+function shiftTowers(direction, towerIDs, distance, centre) {
+  let allTowers = document.getElementsByClassName("tower");
+  let selectedTowers = [];
+  let someAction = {
+    actionType: "mT",
+    tID: [],
+    direction: "",
+    distance: 0,
+    centre: centre,
+  };
+  if (towerIDs == undefined) {
+    Array.from(allTowers).forEach((tower, index) => {
+      if (tower.classList.contains("highlighted")) {
+        selectedTowers.push(index);
+        someAction.tID.push(towerID[index]);
+      } //stores array ID
+    });
+  } else {
+    someAction.tID = towerIDs;
+    selectedTowers = convertIDtoArray(towerIDs);
+  }
+  if (distance == undefined) {
+    distance = snapRadius / 2;
+  }
+  someAction.distance = distance;
+  let rotationAngle = 45;
+  if (direction === "rotate") {
+    rotationAngle = distance;
+    R_Rotate = false;
+    someAction.distance = rotationAngle;
+  }
+  if (R_Rotate) {
+    rotationAngle = prompt("enter angle");
+    direction = "rotate";
+    R_Rotate = false;
+    if (direction == "l") {
+      rotationAngle = -rotationAngle;
+    }
+    someAction.distance = rotationAngle;
+  }
+  switch (direction) {
+    case "u": {
+      //y-
+      someAction.direction = "u";
+      selectedTowers.forEach((thisTower) => {
+        allTowers[thisTower].style.top =
+          allTowers[thisTower].style.top.replace("px", "") - distance;
+        towerYpos[thisTower] -= distance;
+      });
+      break;
+    }
+    case "d": {
+      //y+
+      someAction.direction = "d";
+      selectedTowers.forEach((thisTower) => {
+        allTowers[thisTower].style.top =
+          allTowers[thisTower].style.top.replace("px", "") - -distance;
+        towerYpos[thisTower] -= -distance;
+      });
+      break;
+    }
+    case "l": {
+      //x-
+      someAction.direction = "l";
+      selectedTowers.forEach((thisTower) => {
+        allTowers[thisTower].style.left =
+          allTowers[thisTower].style.left.replace("px", "") - distance;
+        towerXpos[thisTower] -= distance;
+      });
+      break;
+    }
+    case "r": {
+      //x+
+      someAction.direction = "r";
+      selectedTowers.forEach((thisTower) => {
+        allTowers[thisTower].style.left =
+          allTowers[thisTower].style.left.replace("px", "") - -distance;
+        towerXpos[thisTower] -= -distance;
+      });
+      break;
+    }
+    case "rotate": {
+      // <==error HERE  mid of towers will change when rotating - next rotating will be different cenetered then first rotation, hence it will "move"
+      someAction.direction = "rotate";
+      let mid;
+      if (centre == undefined) {
+        mid = getMidOfTowers(selectedTowers);
+      } else {
+        mid = centre;
+      }
+      someAction.centre = mid;
+
+      selectedTowers.forEach((thisTower) => {
+        let radians = (rotationAngle * Math.PI) / 180;
+        let cos = Math.cos(radians);
+        let sin = Math.sin(radians);
+        let x = towerXpos[thisTower] - mid.x;
+        let y = towerYpos[thisTower] - mid.y;
+        let newX = x * cos - y * sin + mid.x;
+        let newY = x * sin + y * cos + mid.y;
+        allTowers[thisTower].style.left = newX - 12;
+        allTowers[thisTower].style.top = newY - 12;
+        towerXpos[thisTower] = newX;
+        towerYpos[thisTower] = newY;
+      });
+      break;
+    }
+    default: {
+      console.log("ERROR SMH -  " + direction);
+      break;
+    }
+  }
+
+  let noticedWalls = [];
+  wallTower1.forEach((e) => {
+    noticedWalls.push(false); //all walls false
+  });
+
+  wallTower1.forEach((wall1, index) => {
+    let wall2 = wallTower2[index];
+    selectedTowers.forEach((someTower) => {
+      let thisTower = towerID[someTower];
+      if ((wall1 == thisTower || wall2 == thisTower) && !noticedWalls[index]) {
+        noticedWalls[index] = true;
+        updateWall(index, wall1, wall2);
+      }
+    });
+  });
+
+  pastActions.push(someAction);
+
+  updateTowerInfo(1); // 1 - new tower
+}
+
+function undoLastAction() {
+  //!HERE!
+  if (1 > pastActions.length) {
+    return;
+  }
+  temp = pastActions[pastActions.length - 1].actionType;
+  switch (temp) {
+    case "pT": {
+      destroyTower(pastActions[pastActions.length - 1].tID); //destroy tower pastActions[pastActions.length-1].tID
+      updateTowerInfo(1);
+      break;
+    }
+    case "dT": {
+      //place tower
+      let numeroOfThisAction = pastActions.length - 1;
+
+      pastActions[numeroOfThisAction].x.forEach((destroyedTowerX, index) => {
+        createTower(
+          destroyedTowerX,
+          pastActions[numeroOfThisAction].y[index],
+          pastActions[numeroOfThisAction].tID[index],
+          pastActions[numeroOfThisAction].color[index]
+        );
+      });
+
+      pastActions[numeroOfThisAction].wall1.forEach((firstWall, index) => {
+        buildWall(firstWall, pastActions[numeroOfThisAction].wall2[index]);
+      });
+      break;
+    }
+    case "mT": {
+      let direction = pastActions[pastActions.length - 1].direction;
+      let ids = pastActions[pastActions.length - 1].tID;
+      let distance = pastActions[pastActions.length - 1].distance;
+      let centre = pastActions[pastActions.length - 1].centre;
+      shiftTowers(direction, ids, -distance, centre);
+      //move towers
+      break;
+    }
+    case "clT": {
+      let ids = pastActions[pastActions.length - 1].tID;
+      let colors = pastActions[pastActions.length - 1].color;
+      changeColor(colors, ids);
+      //color towers
+      break;
+    }
+    case "cnT": {
+      let ids = pastActions[pastActions.length - 1].tID;
+      deleteWalls(ids);
+      //connect towers
+      break;
+    }
+    case "sT": {
+      let ids = pastActions[pastActions.length - 1].tID;
+      console.log(ids);
+      toggleShielded(ids);
+      //shield towers
+      break;
+    }
+  }
+  undoneActions.push(pastActions[pastActions.length - 1]);
+  pastActions.splice(pastActions.length - 2, 2);
+}
+function redoLastAction() {
+  if (1 > undoneActions.length) {
+    return;
+  }
+  temp = undoneActions[undoneActions.length - 1].actionType;
+  switch (temp) {
+    case "pT": {
+      destroyTower(undoneActions[undoneActions.length - 1].tID); //destroy tower undoneActions[undoneActions.length-1].tID
+      break;
+    }
+    case "dT": {
+      //place tower
+      let numeroOfThisAction = undoneActions.length - 1;
+      let amountOfDestroyedTowers = undoneActions[numeroOfThisAction].x.length;
+      //console.log(amountOfDestroyedTowers);
+      for (let c = 0; c < amountOfDestroyedTowers; c++) {
+        createTower(
+          undoneActions[numeroOfThisAction].x[c],
+          undoneActions[numeroOfThisAction].y[c],
+          undoneActions[numeroOfThisAction].tID[c],
+          undoneActions[numeroOfThisAction].color[c]
+        );
+      }
+      let amountOfDestroyedWalls =
+        undoneActions[numeroOfThisAction].wall1.length;
+      //console.log(amountOfDestroyedWalls);
+      for (let c = 0; c < amountOfDestroyedWalls; c++) {
+        buildWall(
+          undoneActions[numeroOfThisAction].wall1[c],
+          undoneActions[numeroOfThisAction].wall2[c]
+        );
+      }
+      updateTowerInfo(1);
+      break;
+    }
+    case "mT": {
+      let direction = undoneActions[undoneActions.length - 1].direction;
+      let ids = undoneActions[undoneActions.length - 1].tID;
+      let distance = undoneActions[undoneActions.length - 1].distance;
+      shiftTowers(direction, ids, -distance);
+      //move towers
+      break;
+    }
+    case "clT": {
+      let ids = undoneActions[undoneActions.length - 1].tID;
+      let colors = undoneActions[undoneActions.length - 1].color;
+      changeColor(colors, ids);
+      //color towers
+      break;
+    }
+    case "cnT": {
+      let ids = undoneActions[undoneActions.length - 1].tID;
+      connectTowers(ids);
+      //connect towers
+      break;
+    }
+    case "sT": {
+      let ids = undoneActions[undoneActions.length - 1].tID;
+      console.log(ids);
+      toggleShielded(ids);
+      //shield towers
+      break;
+    }
+  }
+  undoneActions.splice(undoneActions.length - 1, 1);
+}
+
+function changeColor(newColor, towerIDs) {
+  let allTowers = document.getElementsByClassName("tower"); //have to take that shit into one funciton anytime
+  let selectedTowers = [];
+  let someAction = {
+    actionType: "clT",
+    tID: [],
+    color: [],
+  };
+  if (towerIDs == undefined) {
+    for (let c = 0; c < allTowers.length; c++) {
+      if (allTowers[c].classList.contains("highlighted")) {
+        selectedTowers.push(c);
+        someAction.tID.push(towerID[c]);
+        someAction.color.push(towerColor[c]);
+      }
+    }
+  } else {
+    someAction.tID = towerIDs;
+    selectedTowers = convertIDtoArray(towerIDs);
+    selectedTowers.forEach((c) => {
+      someAction.color.push(towerColor[c]);
+    });
+  }
+  if (typeof newColor === "number") {
+    let actualColor = numberToColor(newColor);
+    //console.log('Color: ' + newColor + ' = ' + actualColor);
+    selectedTowers.forEach((c) => {
+      towerColor[c] = newColor;
+      allTowers[c].style.backgroundColor = actualColor;
+      for (let c2 = 0; c2 < wallTower1.length; c2++) {
+        if (wallTower1[c2] == towerID[c]) {
+          //console.log("Update Walls!!");
+          updateWall(c2, wallTower1[c2], wallTower2[c2]);
+        }
+      }
+    });
+    document.getElementById("colorPicker").style.display = "none";
+    updateTowerInfo(1); //"new tower" - colors have changed -> update
+  } else if (newColor.constructor == "function Array() { [native code] }") {
+    if (selectedTowers.length != newColor.length) {
+      someErrorHere();
+      return;
+    }
+    for (let c = 0; c < selectedTowers.length; c++) {
+      temp = numberToColor(newColor[c]);
+      towerColor[selectedTowers[c]] = newColor[c];
+      allTowers[selectedTowers[c]].style.backgroundColor = temp;
+      for (let c2 = 0; c2 < wallTower1.length; c2++) {
+        if (wallTower1[c2] == towerID[selectedTowers[c]]) {
+          //console.log("Update Walls!!");
+          updateWall(c2, wallTower1[c2], wallTower2[c2]);
+        }
+      }
+    }
+  }
+  pastActions.push(someAction);
+}
+
+function coppyTowers() {
+  let allTowers = document.getElementsByClassName("tower"); //towers
+  let selectedTowers = [];
+  for (let u = 0; u < allTowers.length; u++) {
+    if (allTowers[u].classList.contains("highlighted")) {
+      selectedTowers.push(u);
+    }
+  }
+  let mid = getMidOfTowers(selectedTowers);
+
+  coppiedTowers.Xpos = [];
+  coppiedTowers.Ypos = [];
+  coppiedTowers.ID = [];
+  coppiedTowers.color = [];
+
+  selectedTowers.forEach((c) => {
+    //store all tower positions as well as ids and colors
+    coppiedTowers.Xpos.push(towerXpos[c] - mid.x);
+    coppiedTowers.Ypos.push(towerYpos[c] - mid.y);
+    coppiedTowers.ID.push(towerID[c]);
+    coppiedTowers.color.push(towerColor[c]);
+  });
+  //console.log(coppiedTowers);
+
+  coppiedWalls.towerOne = []; //walls
+  coppiedWalls.towerTwo = [];
+  for (let c = 0; c < wallTower1.length; c++) {
+    temp = false;
+    for (let c2 = 0; c2 < coppiedTowers.ID.length; c2++) {
+      //only if wall connects to two towers, which are both coppied as well
+      if (coppiedTowers.ID[c2] == wallTower1[c]) {
+        temp = true;
+        c2 = coppiedTowers.ID.length;
+      }
+    }
+    if (temp) {
+      temp = false;
+      for (let c2 = 0; c2 < coppiedTowers.ID.length; c2++) {
+        if (coppiedTowers.ID[c2] == wallTower2[c]) {
+          temp = true;
+          c2 = coppiedTowers.ID.length;
+        }
+      }
+      if (temp) {
+        coppiedWalls.towerOne.push(wallTower1[c]);
+        coppiedWalls.towerTwo.push(wallTower2[c]);
+      }
+    }
+  }
+  //console.log(coppiedWalls);
+}
+
+function pasteTowers() {
+  /*let centre = mouseCoords(event);
+	console.log(centre);
+	if(G_snapToGrid){
+	  if(centre.x%snapRadius > (snapRadius/2)){
+	    centre.x += snapRadius-(centre.x%snapRadius);
+	  }else{centre.x -= centre.x%snapRadius;}
+	  if(centre.y%snapRadius > (snapRadius/2)){
+	    centre.y += snapRadius-(centre.y%snapRadius);
+	  }else{centre.y -= centre.y%snapRadius;}
+	}*/
+  let startingID = i;
+  let tempX = 0;
+  let tempY = 0;
+  let tempID = 0;
+  let tempColor = 0;
+  for (let c = 0; c < coppiedTowers.Xpos.length; c++) {
+    tempX = coppiedTowers.Xpos[c] + mousePos.x;
+    tempY = coppiedTowers.Ypos[c] + mousePos.y;
+    tempID = coppiedTowers.ID[c] + Number(startingID);
+    tempColor = coppiedTowers.color[c];
+    createTower(tempX, tempY, tempID, tempColor);
+    //console.log(tempX + tempY + tempID + tempColor);
+    if (i <= tempID) {
+      i = tempID + 1;
+    }
+  }
+  for (let c = 0; c < coppiedWalls.towerOne.length; c++) {
+    temp = coppiedWalls.towerOne[c] + startingID;
+    temp2 = coppiedWalls.towerTwo[c] + startingID;
+    buildWall(temp, temp2);
+  }
+}
+
+function getMidOfTowers(towers) {
+  let lX = towerXpos[towers[0]];
+  let tY = towerYpos[towers[0]];
+  let rX = towerXpos[towers[0]];
+  let bY = towerYpos[towers[0]];
+  towers.forEach((u) => {
+    if (towerXpos[u] < lX) {
+      lX = towerXpos[u];
+    }
+    if (towerYpos[u] < tY) {
+      tY = towerYpos[u];
+    }
+    if (towerXpos[u] > rX) {
+      rX = towerXpos[u];
+    }
+    if (towerYpos[u] > bY) {
+      bY = towerYpos[u];
+    }
+  });
+  let mid = { x: (lX + rX) / 2, y: (tY + bY) / 2 };
+  //createTower(mid.x,mid.y,i,4);
+  return mid;
+}
+
+function getNearestTower() {
+  let closestDistance = Math.sqrt(
+    Math.pow(mousePos.x - towerXpos[0], 2) +
+      Math.pow(mousePos.y - towerYpos[0], 2)
+  );
+  let closestTowerAr = 0;
+  for (let c = 1; c < towerID.length; c++) {
+    let thisTowersDistance = Math.sqrt(
+      Math.pow(mousePos.x - towerXpos[c], 2) +
+        Math.pow(mousePos.y - towerYpos[c], 2)
+    );
+    if (thisTowersDistance < closestDistance) {
+      closestDistance = thisTowersDistance;
+      closestTowerAr = c;
+    }
+  }
+  return closestTowerAr;
+}
+
+function getSelectedTowers() {
+  let allTowers = document.querySelectorAll(".tower");
+  let selectedTowerArray = [];
+  Array.from(allTowers).forEach((tower, c) => {
+    if (tower.classList.contains("highlighted")) {
+      selectedTowerArray.push(c);
+    }
+  });
+  /*for(let c = 0; c < allTowers.length; c++){
+		if(allTowers[c].classList.contains('highlighted')){
+			selectedTowerArray.push(c);
+		}
+	}*/
+  /*const selectedTowerArrayTestIsra =  Array.from(document.querySelectorAll('.tower')).filter(el=>el.classList.contains('highlighted'));
+	console.log(selectedTowerArrayTestIsra);
+	console.log("^^");*/
+  return selectedTowerArray;
+}
+
+function startPathCalculation(step) {
+  if (step == 0 && overallBehavior == "normal") {
+    overallBehavior = "pathCalc";
+    document.getElementById("tower-info-pathCalculation-button").innerHTML =
+      "End Path Calculation";
+    // inform "select next tower"
+    previousTowers = [];
+    pathDistance = 0;
+  } else if (step == 0 && overallBehavior == "pathCalc") {
+    //end path calculation
+    overallBehavior = "normal";
+    //alert("Distance: " + (pathDistance/20) + " units  (" + (pathDistance/40) + " squares)");
+    pathDistance /= 20;
+    pathDistance = pathDistance.toFixed(2);
+    let row = 1;
+    for (let c = 0; c < 5; c++) {
+      if (
+        !document.getElementById("path_" + (c + 1) + "_checkbox").checked ||
+        c == 5
+      ) {
+        row = c;
+        break;
+      }
+    }
+    temp = document.querySelectorAll("#table-pathDistance > td");
+    //console.log(temp);
+    console.log("DISTANCE: " + pathDistance);
+    console.log("ROW: " + row);
+    temp[row].innerHTML =
+      pathDistance + " units (" + pathDistance / 2 + " squares)";
+    temp = document.querySelectorAll("#table-basicCopter > td");
+    temp[row].innerHTML = (pathDistance / 9.6).toFixed(2) + " s"; //basic copter speed ~4.8 grids per second / 9.6 units
+    temp = document.querySelectorAll("#table-droneCopter > td");
+    temp[row].innerHTML = (pathDistance / 8.8).toFixed(2) + " s"; //drone speed ~4.4 grids per second / 8.8 units
+    temp = document.querySelectorAll("#table-shotgunCopter > td");
+    temp[row].innerHTML = (pathDistance / 8.8).toFixed(2) + " s"; //shotgun speed ~4.4 grids per second / 8.8 units
+    temp = document.querySelectorAll("#table-minisnipeCopter > td");
+    temp[row].innerHTML = (pathDistance / 7.8).toFixed(2) + " s"; //minisnipe speed ~3.9 grids per second / 7.8 units
+    temp = document.querySelectorAll("#table-machinegunCopter > td");
+    temp[row].innerHTML = (pathDistance / 7.0).toFixed(2) + " s"; //machinegun speed ~3.5 grids per second / 7.0 units
+    temp = document.querySelectorAll("#table-sniperCopter > td");
+    temp[row].innerHTML = (pathDistance / 7.2).toFixed(2) + " s"; //sniper speed ~3.6 grids per second / 7.2 units
+    document.getElementById("distance-overview-table").style.display = "inline";
+    document.getElementById("tower-info-pathCalculation-button").innerHTML =
+      "Start Path Calculation";
+    return;
+  }
+  let allTowers = document.getElementsByClassName("tower");
+  for (c = 0; c < allTowers.length; c++) {
+    if (allTowers[c].classList.contains("highlighted")) {
+      temp = c;
+      c = allTowers.length;
+    }
+  }
+  let thisTower = {
+    x: towerXpos[temp],
+    y: towerYpos[temp],
+  };
+  previousTowers.push(thisTower);
+  if (previousTowers.length > 1) {
+    pathDistance = 0;
+    for (let c = 0; c < previousTowers.length - 1; c++) {
+      pathDistance += Math.sqrt(
+        Math.pow(previousTowers[c].x - previousTowers[c + 1].x, 2) +
+          Math.pow(previousTowers[c].y - previousTowers[c + 1].y, 2)
+      );
+    }
+  }
+}
+
+function zoomMap(event) {
+  let zoomInOut = event.deltaY;
+  if (!onZooming) {
+    onZooming = true;
+    zoomingMouseCoords = {
+      x: uncutMouseCoords.x,
+      y: uncutMouseCoords.y,
+    };
+  }
+  if (zoomInOut < 0) {
+    //zoom IN
+    mapZoom /= 0.9;
+  } else if (zoomInOut > 0) {
+    //zoom OUT
+    mapZoom *= 0.9;
+  }
+  theMap.style.zoom = mapZoom; //transform = "scale(" + mapZoom + ", " + mapZoom + ")";
+  //createTower(uncutMouseCoords.x, uncutMouseCoords.y, i, 3);
+  moveBuildView();
+  //createTower(uncutMouseCoords.x, uncutMouseCoords.y, i, 3);
+  //buildWall(i-2, i-1);
+  let coordsDifferent = {
+    x: uncutMouseCoords.x - zoomingMouseCoords.x,
+    y: uncutMouseCoords.y - zoomingMouseCoords.y,
+  };
+  temp = theMap.style.left.replace("px", "");
+  temp -= -coordsDifferent.x;
+  theMap.style.left = temp;
+  temp = theMap.style.top.replace("px", "");
+  temp -= -coordsDifferent.y;
+  theMap.style.top = temp;
+  moveBuildView();
+}
+
+function changeSelectedTowerColor() {
+  confirmAction(
+    "Change tower colors - enter new color number - 1: grey, 2: blue, 3: red...",
+    3,
+    "Update tower color",
+    "Cancel",
+    true
+  );
+}
+
+function changeHotkey(key) {
+  if (currentHotkey != -1) {
+    //if hotkey change was started, but not finished
+    hotkeyToChange.innerHTML = currentHotkey;
+  }
+  hotkeyToChange = document.getElementById("hotkeys.change" + key);
+  currentHotkey = hotkeyToChange.innerHTML;
+  hotkeyToChange.innerHTML = "press a key";
+  onkeydown = function (event) {
+    if (currentHotkey == -1) {
+      return;
+    }
+    hotkeyToChange.innerHTML = event.key;
+    currentHotkey = -1;
+    return;
+  };
+}
+function hideHotkeyMenu() {
+  mapStuff.classList.remove("blurred");
+  document.getElementById("hotkeys").style.display = "none";
+  if (currentHotkey != -1) {
+    hotkeyToChange.innerHTML = currentHotkey;
+    currentHotkey = -1;
+  }
+  hotkeys.Ctrl = document.getElementById("hotkeys.changeCtrl").innerHTML;
+  hotkeys.Shift = document.getElementById("hotkeys.changeShift").innerHTML;
+  hotkeys.Delete = document.getElementById("hotkeys.changeDelete").innerHTML;
+  hotkeys.g = document.getElementById("hotkeys.changeg").innerHTML;
+  hotkeys.b = document.getElementById("hotkeys.changeb").innerHTML;
+  hotkeys.Enter = document.getElementById("hotkeys.changeEnter").innerHTML;
+}
+
+function changeMapDimensions() {
+  confirmAction("Enter new map width", 4, "Change", "Cancle", true);
+  theMap.style.width = mapWidth * 20;
+  theMap.style.height = mapWidth * 20;
+}
+
+function updateTowerInfo(state) {
+  temp = document.getElementsByClassName("highlighted");
+  if (state == 0 || temp.length < 1) {
+    document.getElementById("tower-info").style.display = "none";
+    //document.getElementById('coords-info').style.display = 'inline';
+    document.getElementById("info-box").style.borderStyle = "none";
+    document.getElementById("info-box").style.backgroundColor = "rgba(0,0,0,0)";
+  } else if (state == 1) {
+    document.getElementById("tower-info").style.display = "inline";
+    //document.getElementById('coords-info').style.display = 'none';
+    document.getElementById("info-box").style.borderStyle = "solid";
+    document.getElementById("info-box").style.backgroundColor =
+      "rgba(10, 10, 10, 0.5)";
+    temp = document.getElementsByClassName("tower");
+    let selectedTowers = [];
+    for (let c = 0; c < temp.length; c++) {
+      if (temp[c].classList.contains("highlighted")) {
+        selectedTowers.push(c);
+      }
+    }
+    document.getElementById(
+      "tower-info-numberSelectedTowers-number"
+    ).innerHTML = selectedTowers.length;
+    if (selectedTowers.length == 1) {
+      document.getElementById("tower-info-pathCalculation").style.display =
+        "inline";
+    } else {
+      document.getElementById("tower-info-pathCalculation").style.display =
+        "none";
+    }
+    let col1 = towerColor[selectedTowers[0]];
+    temp = true;
+    selectedTowers.forEach((c) => {
+      if (towerColor[c] != col1) {
+        temp = false;
+      }
+    });
+    if (temp) {
+      document.getElementById("tower-info-color-button").innerHTML = col1;
+      document.getElementById("tower-info-color-button").style.backgroundColor =
+        numberToColor(col1);
+      if (
+        document.getElementById("tower-info-color-button").style
+          .backgroundColor == "rgb(0, 0, 0)"
+      ) {
+        document.getElementById("tower-info-color-button").style.color =
+          "rgb(180, 180, 180)";
+      } else {
+        document.getElementById("tower-info-color-button").style.color =
+          "rgb(0, 0, 0)";
+      }
+    } else {
+      document.getElementById("tower-info-color-button").innerHTML = "-";
+      document.getElementById("tower-info-color-button").style.backgroundColor =
+        "rgb(180, 180, 180)";
+      document.getElementById("tower-info-color-button").style.color =
+        "rgb(0, 0, 0)";
+    }
+    if (selectedTowers.length == 1) {
+      document.getElementById("tower-info-coords-x").innerHTML = (
+        towerXpos[selectedTowers[0]] / 20
+      ).toFixed(4);
+      document.getElementById("tower-info-coords-y").innerHTML = (
+        towerYpos[selectedTowers[0]] / 20
+      ).toFixed(4);
+    } else {
+      document.getElementById("tower-info-coords-x").innerHTML = "-";
+      document.getElementById("tower-info-coords-y").innerHTML = "-";
+    }
+  }
+} // 1 - new tower
+
+function confirmAction(
+  text,
+  actionToConfirm,
+  buttonConfirm,
+  buttonCancel,
+  inputBox
+) {
+  document.getElementById("confirm").style.display = "inline";
+  openMenu = true;
+  mapStuff.classList.add("blurred");
+  document.getElementById("confirmText").innerHTML = text;
+  // if(isEmpty(buttonConfirm)){buttonConfirm='Confirm';}
+  // if(isEmpty(buttonCancel)){buttonCancel='Cancel';}
+  document.getElementById("confirmButtomConfirm").innerHTML = buttonConfirm;
+  document.getElementById("confirmButtomCancel").innerHTML = buttonCancel;
+  button1 = document.getElementById("confirmButtomConfirm");
+  button2 = document.getElementById("confirmButtomCancel");
+  if (inputBox) {
+    document.getElementById("confirmInputBox").style.display = "inline";
+  } else {
+    document.getElementById("confirmInputBox").style.display = "none";
+  }
+  if (actionToConfirm == 2) {
+    document.getElementById("confirmInputBox").value = snapRadius / 20;
+  }
+  if (actionToConfirm == 3) {
+    document.getElementById("confirmInputBox").value = selectedTowerColor;
+  }
+  if (actionToConfirm == 4) {
+    document.getElementById("confirmInputBox").value = mapWidth;
+  }
+  if (actionToConfirm == 4.1) {
+    document.getElementById("confirmInputBox").value = mapHeight;
+  }
+  button1.onclick = function () {
+    document.getElementById("confirm").style.display = "none";
+    mapStuff.classList.remove("blurred");
+    openMenu = false;
+    switch (actionToConfirm) {
+      case 1: {
+        //delete map
+        deleteExistingMap();
+        break;
+      }
+      case 2: {
+        //change snap range
+        temp = document.getElementById("confirmInputBox").value;
+        changeSnapRange(temp);
+        break;
+      }
+      case 3: {
+        //change tower color
+        selectedTowerColor = document.getElementById("confirmInputBox").value;
+        break;
+      }
+      case 4: {
+        longtemp = document.getElementById("confirmInputBox").value;
+        confirmAction("Enter new map height", 4.1, "Change", "Cancle", true);
+        break;
+      }
+      case 4.1: {
+        mapWidth = longtemp;
+        mapHeight = document.getElementById("confirmInputBox").value;
+        theMap.style.width = mapWidth * 20;
+        theMap.style.height = mapHeight * 20;
+        let svg = document.querySelector("#mapShadingSvg");
+        svg.setAttribute("width", mapWidth * 20);
+        svg.setAttribute("height", mapHeight * 20);
+        break;
+      }
+    }
+  };
+  button2.onclick = function () {
+    mapStuff.classList.remove("blurred");
+    openMenu = false;
+    document.getElementById("confirm").style.display = "none";
+  };
+}
+
+document.addEventListener("contextmenu", function (event) {
+  //preventing right click from creating context menu instead of detecting click
+  event.preventDefault();
+});
+window.oncontextmenu = function () {
+  buildTower();
+  return false; // cancel default menu
+};
+
+document.addEventListener("keydown", function (event) {
+  if (openMenu) {
+    if (event.key == "Enter") {
+      //this.blur();
+      console.log("confirm smh idk");
+      if (document.getElementById("confirm").style.display == "inline") {
+        document.getElementById("confirmButtomConfirm").blur();
+        document.getElementById("confirmButtomConfirm").click();
+        console.log("yup");
+      }
+      if (
+        document.getElementById("downloadMapOptions").style.display == "inline"
+      ) {
+        document.getElementById("downloadMapFileButton").click();
+      }
+      return;
+    } else {
+      return;
+    }
+  }
+  temp = event.key;
+  switch (temp) {
+    case hotkeys.Delete: {
+      //console.log("SFGH");
+      destroyTower();
+      break;
+    }
+    case hotkeys.Ctrl: {
+      Ctrl = true;
+      //console.log("Ctrl: " + Ctrl);
+      break;
+    }
+    case hotkeys.Shift: {
+      Shift = true;
+      break;
+    }
+    case hotkeys.Enter: {
+      connectTowers();
+      Enter = true;
+      break;
+    }
+    case hotkeys.b: {
+      shieldTowers();
+      break;
+    }
+    case hotkeys.r: {
+      R_Rotate = true;
+      break;
+    }
+    case hotkeys.ArrowUp: {
+      shiftTowers("u");
+      break;
+    }
+    case hotkeys.ArrowDown: {
+      shiftTowers("d");
+      break;
+    }
+    case hotkeys.ArrowLeft: {
+      shiftTowers("l");
+      break;
+    }
+    case hotkeys.ArrowRight: {
+      shiftTowers("r");
+      break;
+    }
+    case hotkeys.z: {
+      console.log("undo");
+      if (Ctrl) {
+        if (Shift) {
+          console.log("unde x10");
+          for (let c = 0; c < 10; c++) {
+            undoLastAction();
+            console.log(c);
+          }
+        } else {
+          undoLastAction();
+        }
+      }
+      break;
+    }
+    case hotkeys.y: {
+      if (Ctrl) {
+        if (Shift) {
+          for (let c = 0; c < 10; c++) {
+            redoLastAction();
+          }
+        } else {
+          redoLastAction();
+        }
+      }
+      break;
+    }
+    case hotkeys.w: {
+      upW = true;
+      return;
+    }
+    case hotkeys.a: {
+      leftA = true;
+      return;
+    }
+    case hotkeys.s: {
+      downS = true;
+      return;
+    }
+    case hotkeys.d: {
+      rightD = true;
+      return;
+    }
+    case hotkeys.Plus: {
+      movementSpeed += 0.5;
+      break;
+    }
+    case hotkeys.Minus: {
+      movementSpeed -= 0.5;
+      if (movementSpeed < 0.5) {
+        movementSpeed = 0.5;
+      }
+      break;
+    }
+    case hotkeys.Zero: {
+      movementSpeed = 4;
+      break;
+    }
+    case hotkeys.f: {
+      console.log("SHADING...");
+      buildShading();
+      break;
+    }
+    case hotkeys.One: {
+      buildDifferentThing(["bomb", 0]);
+      break;
+    }
+    case hotkeys.Two: {
+      buildDifferentThing(["bomb", 1]);
+      break;
+    }
+    case hotkeys.Three: {
+      buildDifferentThing(["spawn", 0]);
+      break;
+    }
+    case hotkeys.Four:
+      {
+        buildDifferentThing(["spawn", 1]);
+        break;
+      }
+  }
+  //console.log("Keydown: " + event.key + "  - Ctrl: " + Ctrl + " - Shift: " + Shift);
+});
+document.addEventListener("keyup", function (event) {
+  if (openMenu) {
+    return;
+  }
+  temp = event.key;
+  switch (temp) {
+    case hotkeys.Ctrl: {
+      Ctrl = false;
+      break;
+    }
+    case hotkeys.Shift: {
+      Shift = false;
+      break;
+    }
+    case hotkeys.Enter: {
+      Enter = false;
+      break;
+    }
+    case hotkeys.g: {
+      G_snapToGrid = !G_snapToGrid;
+      //console.log("TOGGLED: " + G_snapToGrid);
+      break;
+    }
+    case hotkeys.r: {
+      if (R_Rotate) {
+        R_Rotate = false;
+      }
+      break;
+    }
+    case hotkeys.c: {
+      coppyTowers();
+      break;
+    }
+    case hotkeys.v: {
+      pasteTowers();
+      break;
+    }
+    case hotkeys.n: {
+      changeSelectedTowerColor();
+      break;
+    }
+    case hotkeys.w: {
+      upW = false;
+      return;
+    }
+    case hotkeys.a: {
+      leftA = false;
+      return;
+    }
+    case hotkeys.s: {
+      downS = false;
+      return;
+    }
+    case hotkeys.d: {
+      rightD = false;
+      return;
+    }
+  }
+  //console.log("Keyup: " + temp);
+});
+
+document.addEventListener("mousedown", function () {
+  selectChunk(0);
+});
+document.addEventListener("mousemove", function () {
+  updateMouseCoords();
+  moveBuildView();
+  onZooming = false;
+});
+document.addEventListener("mouseup", function () {
+  selectChunk(2);
+  //checkUnselect();
+});
+
+function notWorkingYet() {
+  alert(
+    "Unfortunately, this button's property hasn´t been codded in yet - pls dm Marmuzzcju#5615 for further informations/suggestions and bug reports"
+  );
+}
+function someErrorHere() {
+  alert(
+    "AnError has encountered here!! - Please check the console for any error message and report this error to Marmuzzcju#5615"
+  );
+}
+
+window.setInterval(function () {
+  if (!openMenu) {
+    if (upW && !downS) {
+      mapIntervallTempSpeed[0] = (-movementSpeed / mapZoom) * 8;
+    } else if (downS && !upW) {
+      mapIntervallTempSpeed[0] = (movementSpeed / mapZoom) * 8;
+    } else {
+      mapIntervallTempSpeed[0] = 0;
+    }
+
+    if (leftA && !rightD) {
+      mapIntervallTempSpeed[1] = (-movementSpeed / mapZoom) * 8;
+    } else if (rightD && !leftA) {
+      mapIntervallTempSpeed[1] = (movementSpeed / mapZoom) * 8;
+    } else {
+      mapIntervallTempSpeed[1] = 0;
+    }
+
+    if (mapIntervallTempSpeed[0] != 0 && mapIntervallTempSpeed[1] != 0) {
+      mapIntervallTempSpeed[0] *= 0.71;
+      mapIntervallTempSpeed[1] *= 0.71;
+      temp2 = true;
+    } else if (mapIntervallTempSpeed[0] != 0 || mapIntervallTempSpeed[1] != 0) {
+      temp2 = true;
+    } else {
+      temp2 = false;
+    }
+
+    if (temp2) {
+      onZooming = false;
+      temp = theMap.style.top;
+      temp = temp.replace("px", "");
+      theMap.style.top = temp - mapIntervallTempSpeed[0];
+      temp = theMap.style.left;
+      temp = temp.replace("px", "");
+      theMap.style.left = temp - mapIntervallTempSpeed[1];
+      moveBuildView();
+    }
+  }
+}, 40);

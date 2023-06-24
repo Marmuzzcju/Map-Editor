@@ -1,0 +1,271 @@
+<html>
+<head>
+<title>Map Editor</title>
+<link rel="icon" href="images/koth-tower.png">
+<!-- <link rel="stylesheet" href="style.css"/> -->
+<link rel="stylesheet" href="index.css"/>
+</head>
+<body>
+
+<div id="MapStuff" onmousewheel="zoomMap(event);">
+	<div onclick="console.log('click');" onmousedown="selectChunk(50);" onmousemove="selectChunk(51);" onmouseup="selectChunk(52); checkUnselect();" id="MapEditorMap"><!-- unselect();  -->
+		<img src="images/empty.png" id="chunkSelection">
+	
+		<img src="images/koth-tower.png" id="buildView">
+		<img src="images/empty.png" id="softlockView">
+		<svg id="mapShadingSvg" width="4200" height="2400"></svg>
+		<img src="images/defly-defuse-bombSpotA.png" class="bombSpot hidden">
+		<img src="images/defly-defuse-bombSpotB.png" class="bombSpot hidden">
+		<img src="images/spawn-blue.png" class="spawnPoint hidden" id="blueSpawn">
+		<img src="images/spawn-red.png" class="spawnPoint hidden" id="redSpawn">
+	</div> <!-- onclick="buildTower();" -->
+
+	<div id="justBackground" onclick="unselect();"></div>
+
+
+
+	<button id="showMenu" style="font-size:15px; width:120px; position:fixed; top:6%; left:3%; z-index:100;" onclick="document.getElementById('menu').style.display = 'inline'; document.getElementById('showMenu').style.display = 'none';">Show Menu</button>
+	<div id="menu">
+  		<div id="menuContent">
+			<span style="margin-left:86px; font-size:22; color:rgb(7, 7, 60);">Options Menu</span></br>
+			<button id="hideMenu" class="fatButton" onclick="document.getElementById('menu').style.display = 'none'; document.getElementById('showMenu').style.display = 'inline';">Hide Menu</button></br>
+			<button id="showHelp" class="fatButton" onclick="document.getElementById('instructions').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">Help/Instructions</button> </br>
+			<button class="fatButton" onclick="CopyFile()">Copy Map File</button> </br>
+			<button class="fatButton" onclick="showDownloadMapOptions();openMenu=true;">Download Map File</button> </br>  <!-- onclick="downloadMapFile('map-editor-v1.7.mapFile.txt')" -->
+			<button class="fatButton" onclick="document.getElementById('uploadMapFileButton').click();">Load Map File</button> </br>
+			<input type="file" id="uploadMapFileButton" onchange="getFile(this)">
+    		<label for="loadNewMap">&nbsp;&nbsp;&nbsp;&nbsp;Load new map: </label>
+			<input type="radio" id="loadNewMap" name="mapLoadingType" value="loadNewMap" class="clickable" checked>
+    		<label for="loadAdditionalMap">&nbsp;Load on top: </label>
+    		<input type="radio" id="loadAdditionalMap" name="mapLoadingType" value="loadAdditionalMap" class="clickable"><br>
+			<button class="fatButton" onclick="document.getElementById('hotkeys').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">View/Change Hotkeys</button> </br>
+			<button class="fatButton" onclick="confirmAction('Are you sure you want to delete your current map?\nDeleting map will also erase your undo/redo history', 1, 'Confirm', 'Cancel', 0);openMenu=true;">Clear Map</button> </br>
+			<button class="fatButton" onclick="confirmAction('Enter new snap range:', 2, 'Update snap range', 'Cancel', 1);openMenu=true;">Change Snap range</button> </br>
+			<button class="fatButton" onclick="document.getElementById('distance-overview-table').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">View Distance Table</button> </br>
+			<button class="fatButton" onclick="changeMapDimensions();openMenu=true;">Change Map Dimensions</button> </br>
+  		</div>
+	</div>
+
+	<div id="info-box">
+		<div id="tower-info" style="text-align: center;">
+			<div id="tower-info-numberSelectedTowers">
+				Selected towers: 
+				<span id="tower-info-numberSelectedTowers-number">0</span>
+			</div>
+			<div id="tower-info-coords">
+				X: 
+				<button id="tower-info-coords-x-plus" class="increaseDecreaseButton" onclick="shiftTowers('r')">+</button>
+				<span id="tower-info-coords-x">0</span>
+				<button id="tower-info-coords-x-minus" class="increaseDecreaseButton" onclick="shiftTowers('l')">-</button>
+				&nbsp;&nbsp;Y: 
+				<button id="tower-info-coords-y-plus" class="increaseDecreaseButton" onclick="shiftTowers('d')">+</button>
+				<span id="tower-info-coords-y">0</span>
+				<button id="tower-info-coords-y-minus" class="increaseDecreaseButton" onclick="shiftTowers('u')">-</button>
+			</div>
+			<div id="tower-info-color">
+				Color:
+				<button class="fatButton" onclick="document.getElementById('colorPicker').style.display = 'inline';" id="tower-info-color-button" style="background-color: rgb(0,0,0);width:120px;pointer-events: auto;">0</button>
+			</div>
+			<div id="tower-info-pathCalculation" style="padding-left: 5%;">
+				<button class="fatButton" onclick="startPathCalculation(0);" id="tower-info-pathCalculation-button" style="background-color: rgb(200, 10, 10);width:210px;pointer-events: auto;">Start Path Calculation</button>
+			</div>
+		</div>
+		<div id="coords-info" style="text-align: right;">
+			X: 
+			<span id="coords-info-x">0</span>
+			&nbsp;&nbsp;Y: 
+			<span id="coords-info-y">0</span>
+		</div>
+	</div>
+</div>
+
+<div id="instructions" class="infoBackground">
+  <image src="https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/close-icon.svg" id="hideHelp" onclick="document.getElementById('instructions').style.display = 'none';mapStuff.classList.remove('blurred');openMenu=false;" class="clickable closeButton">
+  <img src="images/previous-symbol.png" id="previousHelpPage" onclick="showHelpPage(-1);" class="clickable" style="width:30px; height:30px; position:fixed; left:10.5%; bottom:49%;z-index:1;">
+  <img src="images/previous-symbol.png" id="previousHelpPage" onclick="showHelpPage(1);" class="clickable" style="width:30px; height:30px; position:fixed; right:10.5%; bottom:49%; z-index:1; -webkit-transform:scaleX(-1); transform:scaleX(-1);">
+  <p id="pageCount" style="font-size:20px; position:fixed; bottom:10%; right:11%; z-index:1;">1/3</span>
+  <div id="helpContent" class="infoScroller">
+    <!--TEST</br></br>-->
+	<div id="helpPage1" class="instructionContentPage">
+	  page 1</br>
+	  Use Right Click to place towers </br>
+	  A new placed tower will be sellected on default<img src="https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/close-icon.svg"></br>
+	  Left click any towers to select them</br>
+	  Shift click a tower to add or remove it from the sellected towers</br>
+	  Ctrl Click any tower to sellect all towers</br>
+	  Press 'delet' to delete all sellected towers</br>
+	  Whenever you place down a new tower, it will be connected via walls to all sellected towers</br>
+	</div>
+	<div id="helpPage2" class="instructionContentPage">
+	  page 2
+	</div>
+	<div id="helpPage3" class="instructionContentPage">
+	  page 3
+	</div>
+  </div>
+</div>
+
+<div id="hotkeys" class="infoBackground">
+  <image src="https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/close-icon.svg" id="hideHotkeys" onclick="hideHotkeyMenu();openMenu=false;" class="clickable closeButton">
+  <div id="hotkeysContent" class="infoScroller">
+    <p class="infoTitle">Hotkeys</p>
+	<p style="position:fixed;top:18%;left:38%;">Click any hotkey to change its key</p>
+	<div id="hotkeyList">
+	  <p class="fixed ln1 col1">Select single tower:&nbsp;&nbsp;Left Click</p>
+	  <p class="fixed ln2 col1">Ad/remove from selected towers:</p>
+	  <button class="hotkeys.button col1B" style="left:54%;" id="hotkeys.changeCtrl" onclick="changeHotkey('Ctrl');">Control</button>
+	  <p class="fixed col1" style="left:58.5%"> + Left Click</p>
+	  <p class="fixed ln3 col1">Select all towers:</p>
+	  <button class="hotkeys.button col1B" style="left:72.5%;" id="hotkeys.changeShift" onclick="changeHotkey('Shift');">Shift</button>
+	  <p class="fixed col1" style="left:77%"> + Left Click</p>
+	  <p class="fixed ln1 col2">Place towers:&nbsp;&nbsp;Right Click</p>
+	  <p class="fixed ln2 col2">Delete selected towers:</p>
+	  <button class="hotkeys.button col2B" style="left:50%;" id="hotkeys.changeDelete" onclick="changeHotkey('Delete');">Delete</button>
+	  <p class="fixed ln3 col2">Snap to grid:</p>
+	  <button class="hotkeys.button col2B" style="left:70.5%;" id="hotkeys.changeg" onclick="changeHotkey('g');">g</button>
+	  <p class="fixed ln1 col3">Select area:&nbsp;&nbsp;middle click + drag</p>
+	  <p class="fixed ln2 col3">Shield selected towers:</p>
+	  <button class="hotkeys.button col3B" style="left:50%;" id="hotkeys.changeb" onclick="changeHotkey('b');">b</button>
+	  <!-- <p class="fixed ln3 col3">Move selected towers:&nbsp;&nbsp;[---]</p> -->
+	  <p class="fixed ln3 col3">Connect selected towers:</p>
+	  <button class="hotkeys.button col3B" style="left:75.5%;" id="hotkeys.changeEnter" onclick="changeHotkey('Enter');">Enter</button>
+	</div>
+  </div>
+</div>
+
+<div id="confirm" class="infoBackground">
+  <div style="position: fixed; top:35%; left:27%; width: 46%; height: 35%; border-radius: 10px; background-color: rgba(0,0,0,0.5);"></div>
+  <p id="confirmText" style="font-size:22px; position:fixed; top:40%; left:35%; height:20%; width:30%; color:rgba(220,220,220,1); text-align: center;">TEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXTTEST TEXT</p>
+  <input type="numbers" onclick="this.select();" style="position:fixed; top:53%; left:45%; width:10%; height:4%;" id="confirmInputBox" value="0">
+  <button class="fatButton" id="confirmButtomConfirm" style="position:fixed; top:60%; left:30%; background-color:rgb(10,255,10);" onclick="openMenu=false;">Confirm</button>
+  <button class="fatButton" id="confirmButtomCancel" style="position:fixed; top:60%; left:50%; background-color:rgb(255,120,0);" onclick="openMenu=false;">Cancel</button>
+</div>
+
+<div id="downloadMapOptions" class="infoBackground">
+  <image src="https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/close-icon.svg" id="hideDownloadMapOptions" onclick="document.getElementById('downloadMapOptions').style.display = 'none';mapStuff.classList.remove('blurred');openMenu=false;" class="clickable closeButton">
+  <div id="downloadMapOptionsContent" class="infoScroller">
+    <p class="infoTitle">Map file options</p>
+	<p style="position:fixed;top:23%;left:24%;font-size:20px;">Map name: </p>
+	<input id="mapName" type="text" onclick="this.select();" style="position:fixed;top:26%;left:30.5%;">
+	<p style="position:fixed;top:23%;left:55%;font-size:20px;">Author name: </p>
+	<input id="mapAuthorName" type="text" onclick="this.select();" style="position:fixed;top:26%;left:63%;">
+	<p style="position:fixed;top:47%;left:24%;font-size:20px;">Map width: </p>
+	<input id="mapWidth" type="text" onclick="this.select();" style="position:fixed;top:50%;left:30.5%;" value="210">
+	<p style="position:fixed;top:47%;left:55%;font-size:20px;">Map height: </p>
+	<input id="mapHeight" type="text" onclick="this.select();" style="position:fixed;top:50%;left:63%;" value="120">
+	<button id="downloadMapFileButton" class="fatButton" style="width:120px;position:fixed;bottom:16%;right:13%;" onclick="downloadMapFile();" class="clickable">Download Map File</button>
+	<!-- radios \/ -->
+	<input type="radio" id="radioDeflyMap" name="mapGeneratingType" value="generateDeflyMap" class="clickable mapFileOptionRadio" style="right:40%;" checked>
+	<label for="loadNewMap" class="mapFileOptionRadio" style="right:35%;">Defly Map</label>
+    <input type="radio" id="radioAstrollyMap" name="mapGeneratingType" value="generateAstrollyMap" class="clickable mapFileOptionRadio" style="right:29%;">
+    <label for="loadAdditionalMap" class="mapFileOptionRadio" style="right:23%;">Astrolly Map</label>
+  </div>
+</div>
+
+
+
+<div id="colorPicker" class="infoBackground">
+	<div id="colorPickerContent" class="infoScroller">
+		<p class="infoTitle">Select Tower Color</p><!-- !HERE! update change color to this format -->
+		<button class="fixed colorPickerLine1 colorPickerColum1 colorPickerButton" onclick="changeColor(1);" style="background-color: rgb(77,77,77);">1</button>
+		<button class="fixed colorPickerLine2 colorPickerColum1 colorPickerButton" onclick="changeColor(2);" style="background-color: rgb(61,93,255);">2</button>
+		<button class="fixed colorPickerLine3 colorPickerColum1 colorPickerButton" onclick="changeColor(3);" style="background-color: rgb(253,53,53);">3</button>
+		<button class="fixed colorPickerLine4 colorPickerColum1 colorPickerButton" onclick="changeColor(4);" style="background-color: rgb(0,128,55);">4</button>
+		<button class="fixed colorPickerLine5 colorPickerColum1 colorPickerButton" onclick="changeColor(5);" style="background-color: rgb(255,128,42);">5</button>
+		<button class="fixed colorPickerLine1 colorPickerColum2 colorPickerButton" onclick="changeColor(6);" style="background-color: rgb(146,75,255);">6</button>
+		<button class="fixed colorPickerLine2 colorPickerColum2 colorPickerButton" onclick="changeColor(7);" style="background-color: rgb(85,213,255);">7</button>
+		<button class="fixed colorPickerLine3 colorPickerColum2 colorPickerButton" onclick="changeColor(8);" style="background-color: rgb(24,226,31);">8</button>
+		<button class="fixed colorPickerLine4 colorPickerColum2 colorPickerButton" onclick="changeColor(9);" style="background-color: rgb(246,89,255);">9</button>
+		<button class="fixed colorPickerLine5 colorPickerColum2 colorPickerButton" onclick="changeColor(10);" style="background-color: rgb(247,255,42);">10</button>
+		<button class="fixed colorPickerLine1 colorPickerColum3 colorPickerButton" onclick="changeColor(11);" style="background-color: rgb(255,95,174);">11</button>
+		<button class="fixed colorPickerLine2 colorPickerColum3 colorPickerButton" onclick="changeColor(12);" style="background-color: rgb(147,254,0);">12</button>
+		<button class="fixed colorPickerLine3 colorPickerColum3 colorPickerButton" onclick="changeColor(13);" style="background-color: rgb(0,255,188);">13</button>
+		<button class="fixed colorPickerLine4 colorPickerColum3 colorPickerButton" onclick="changeColor(14);" style="color: rgb(200,200,200); background-color: rgb(0, 0, 0);">14</button>
+		<button class="fixed colorPickerLine5 colorPickerColum3 colorPickerButton"  onclick="document.getElementById('colorPicker').style.display = 'none';"style="background-color: rgb(180, 180, 180);">Close</button>
+	</div>
+</div>
+
+<div id="distance-overview-table" class="infoBackground" style="display: none;">
+	<image src="https://uxwing.com/wp-content/themes/uxwing/download/checkmark-cross/close-icon.svg" id="hideTable" onclick="document.getElementById('distance-overview-table').style.display = 'none';mapStuff.classList.remove('blurred');openMenu=false;" class="clickable closeButton"></image>
+	<div class="infoScroller">
+		<table style="text-align: center; position: relative; top: 10%; left: 3.6%; bottom: 15%; right: 15%; width: 70%; height: 15%;">
+			<tr>
+				<th></th>
+				<td><input type="text" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 1"></td>
+				<td><input type="text" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 2"></td>
+				<th><input type="text" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 3"></th>
+				<th><input type="text" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 4"></th>
+				<th><input type="text" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 5"></th>
+			</tr>
+			<tr id="table-pathDistance">
+				<th>Distance</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr id="table-basicCopter">
+				<th>Basic</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr id="table-droneCopter">
+				<th>Drone</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr id="table-shotgunCopter">
+				<th>Shotgun</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr id="table-minisnipeCopter">
+				<th>Minisniper</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr id="table-machinegunCopter">
+				<th>Machinegun</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr id="table-sniperCopter">
+				<th>Sniper</th>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+				<td></td>
+			</tr>
+			<tr>
+				<td>Fixed</td>
+				<td><input type="checkbox" class="clickable" id="path_1_checkbox"></td>
+				<td><input type="checkbox" class="clickable" id="path_2_checkbox"></td>
+				<td><input type="checkbox" class="clickable" id="path_3_checkbox"></td>
+				<td><input type="checkbox" class="clickable" id="path_4_checkbox"></td>
+				<td><input type="checkbox" class="clickable" id="path_5_checkbox"></td>
+			</tr>
+		</table>
+	</div>
+</div>
+
+<script src="index.js"></script>
+
+</body>
+<html>

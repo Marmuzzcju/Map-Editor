@@ -1,0 +1,189 @@
+Map editor
+
+    TO DO LIST:
+
+        - finish undo/redo
+          >Delete chunk > undo > redo will only delete one tower  <- !!!important fix
+        
+        - add clean file support
+        - add map file types
+        
+        - add structure generator (support for map editor script 1 in editor)
+
+        - add shaded support  <- working on that rn
+
+        - add non-shielded towers in shielded terrain support
+
+        - add visualisation to shielded/non-shielded towers
+
+        - add KOTH, spawns, bombs etc support  <- added bombs, working on spawns & koth
+
+        - resize group of towers / entire map
+
+        - download/coppy/load structure
+
+        - calculate absolute playable space (map space - shaded space)
+
+        - ...
+
+        - add MAP GENERATOR
+
+        - ...
+
+        - add cruxfly support
+
+        - add algorhytm to find softlocks
+    
+
+    DONE LIST:
+
+        - some little start  - 28.01
+          >when clicking on background a new tower sprite will be placed
+          >tower sprite square, defly kOTH tower
+          >towers will be deleted when clicked on them
+
+        - some more progress
+          >towers now will spawn on mouse coords
+          >COPY MAP FILE
+        
+        - WALLS - 29.01
+          >when tower is placed, will be connected via wall to previous map file
+          >also saved when copying map file
+
+        - concept of selecting: - 30.01 - 01.02
+          >each tower is either selected or not selected
+          >whenever a new tower is placed, it will be connected to each selected tower via walls
+          >furthermore, selected towers can be manipulated - more on that later
+          >you select single towers by clickign on them
+          >you add towers as selected by ctrl - clicking
+          >you select all towers by shift - clicking
+          >to delete towers you now have to select towers and press 'delete' afterwards
+
+        - option menu - start at 01.02 -- constantly updated during changes n stuff
+          >close/open button
+          >help page
+          >coppy map file
+          >load mapfile
+          >hotkey menu
+
+        - started working on load map file - 05.02 - 08.02 (+ later on small edits)
+          >loads maps from .txt defly file format
+          >loads either new map or on top of existing one
+
+        - pressing 'Enter' will connect all selected towers with each other (09-02)
+
+        - chunk selection:  - 11.02 - 12.02
+          >hold middle mosue down to select a chunk of towers
+          >ctrl/shift attributes to add/toggle or select all towers apply
+
+        - build-previewer:  - 12.02
+          >small halh visible tower as build preview
+
+        - added snap to 'grid'  - 12.02
+          >snap range costumazible
+
+        - 'b' to add shielded properties to towers  - 13.02
+
+        - added new format for deleting map and changing snap range  - 14.02
+
+        - added astrolly map format  - 15.02
+
+        - added map download screen  - 16.02
+
+        - working on hotkey menu  - 17-18.02
+
+        - added shifting towers:  - 20-21.02 
+          >use arow keys to shift towers in each dierection
+          >how much they will be shifted is relative to snap range (snaprange/2)
+
+        - small bug fixes  - 24.02
+
+        - editor now remebers tower colors when loading in a map file - 01.03
+
+        - added tower rotations:  - 04-05.03
+          >when shifting towers, hold down 'r' to rotate them instead
+          >rotation angle will be input via prompt
+
+        - added coppy/past tower chunks:  - 07-09.03
+          >'c' to 'coppy' all selected towers
+          >'v' to paste selected towers to where your mouse cursor is
+
+        - working on color support:  - 11-13.03
+          >towers now have color of defly towers when loaded
+          >'n' to change building color
+
+        - added small menu:  - 11-20.03
+          >tower coords (+shifting around)
+          >amount of towers selected
+          >common color (+changing color)
+          >path calculation  - 
+
+        - updated tower and wall sprites:  - 13.03
+          >both are closer to defly now
+          >still not perfect - messed that up
+
+        - finished 'path calculation':  - 27.03 (?)
+          >when having single tower selected, press 'start path calculation' to start path calculation at that very point
+          >select other towers/build towers
+          >hit 'end path calculation' to end the path calculation
+          >distance between first tower, over all selected towers to last tower willl be shown in table as well as time needed for different defuse copters to travel that distance
+        
+        - working on undo menu:  - 03-11.04
+          >'ctrl z' to undo
+          >'ctrl y' to redo
+          >undo/redo past actions, this includes:
+            :placing towers
+            :destroying towers
+            :coloring towers
+            :shifting towers
+            :rotating towers
+            :shielding towers
+        as well as some minor code tweaks
+
+        - added MAP MOVEMENT:  - 13-14.04
+          >towers now 'chields' of Map
+          >towers thus relative to map
+          >moving map at once around
+          >mouse coords splitted into:
+            :real coords
+            :real, relative to map coords
+            :altered, relative to map coords (snapped to grid, won't exceed map border)
+          >map size now changable
+          >map size will change on map loading
+          >default map like in defly (210 x 120)
+
+        - along with map movement and zooming a few css updates
+
+        - added MAP ZOOM:  - 15-18.04
+          >on mousewheel map will zoom in/out
+          >zooming will be relative to mouse position and thus will zoom in where your mouse is
+          >was pain to fix small bugs with incorrect zooming -_-
+
+        - updated towers and walls spirite to div + closer to defly  - 24.04
+
+        - started working on shaded ares  - sometime in april/may
+
+        ...
+
+        - added bomb spots:  - 18.05
+          >default hotkeys:
+            :'1' for A
+            :'2' for B
+
+        - added spawns v1:  - 18.05
+          >default hotkeys:
+            :'3' for blue
+            :'4' for red
+          >using placeholder img as spawns for now:
+            :no spawn rotation yet
+            :spawns solid image - will take focus from each other when stacking
+
+        - cleanup:  - late april - 20.05
+          >refactored 'for' loops with 'forEach'
+          >replaced 'var' with 'let'
+          >using way more objects now
+          >split file into html, css and js files
+          >put them into ordner along with images and todo/done list
+          >few more little things
+
+        
