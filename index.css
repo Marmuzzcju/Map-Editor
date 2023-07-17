@@ -169,6 +169,7 @@ tr:nth-child(odd) {
     z-index: 4;
     width: 240;
     height: 240;
+    pointer-events: none;
 }
 
 .spawnPoint {
@@ -179,6 +180,7 @@ tr:nth-child(odd) {
     outline-style: solid;
     outline: red;
     outline-width: 3px;
+    pointer-events: none;
 }
  
 .highlighted {

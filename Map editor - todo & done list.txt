@@ -187,7 +187,8 @@ Map editor
           >few more little things
 
         - added space calculation:  - 20.05
-          >default hotkey 'h' for now
+          >[default hotkey 'h' for now]
+          >changed hotkey to 'x'
           >quick add - will be reworked as better ui
           >calculatest totall shaded area
           >displays (alert) totall free space in units², squares and % of totall map space
