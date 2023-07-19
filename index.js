@@ -16,7 +16,6 @@ function getPixData(x, y){
   return context.getImageData(x, y, 1, 1).data;
 }*/
 
-
 let theMap = document.getElementById("MapEditorMap");
 let mapStuff = document.getElementById("MapStuff");
 
@@ -85,7 +84,7 @@ let selectedTowerColor = 1;
 
 let temp;
 let temp2;
-let longtemp;
+//let longtemp;
 
 let globalTestVariable = 0;
 
@@ -181,49 +180,695 @@ const colors = {
 //'rgb (x,x,x )' for ghost towers
 
 let allCharacters = {
-  a : {towers : [[1, 9],[2.5, 5],[4, 1],[5.5, 5],[7, 9]], walls : [[1,2],[2,3],[3,4],[4,5],[2,4]]},
-  b : {towers : [[1.75, 9],[1.75, 5],[1.75, 1],[4.75, 1],[6.25, 3],[4.75, 5],[6.25, 7],[4.75, 9]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6],[6,2],[6,7],[7,8],[8,1]]},
-  c : {towers : [[7,3],[5,1],[3,1],[1,3],[1,7],[3,9],[5,9],[7,7]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8]]},
-  d : {towers : [[1.5,1],[4.5,1],[6.5,3],[6.5,7],[4.5,9],[1.5,9]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6],[6,1]]},
-  e : {towers : [[6.5,1],[1.5,1],[1.5,5],[5.5,5],[1.5,9],[6.5,9]], walls : [[1,2],[2,3],[3,4],[3,5],[5,6]]},
-  f : {towers : [[7,1],[2,1],[2,4.5],[6,4.5],[2,9]], walls : [[1,2],[2,3],[3,4],[3,5]]},
-  g : {towers : [[6.5,3],[5,1],[2.5,1],[1,3],[1,6.5],[2.5,9],[6.5,9],[6.5,6],[3.5,6]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9]]},
-  h : {towers : [[2,1],[2,5],[2,9],[6,1],[6,5],[6,9]], walls : [[1,2],[2,3],[4,5],[5,6],[2,5]]},
-  i : {towers : [[2,1],[4,1],[6,1],[2,9],[4,9],[6,9]], walls : [[1,2],[2,3],[2,5],[4,5],[5,6]]},
-  j : {towers : [[3,1],[6,1],[6,7],[4.5,8.5],[3,8.5],[1.5,7]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6]]},
-  k : {towers : [[2,1],[2,5],[2,9],[6,1],[6,9]], walls : [[1,2],[2,3],[2,4],[2,5]]},
-  l : {towers : [[1.5,1],[1.5,9],[6.5,9]], walls : [[1,2],[2,3]]},
-  m : {towers : [[1,9],[1,1],[4,4],[7,1],[7,9]], walls : [[1,2],[2,3],[3,4],[4,5]]},
-  n : {towers : [[1.5,9],[1.5,1],[6.5,9],[6.5,1]], walls : [[1,2],[2,3],[3,4]]},
-  o : {towers : [[3,1],[1,3],[1,7],[3,9],[5,9],[7,7],[7,3],[5,1]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,1]]},
-  p : {towers : [[2,1],[2,5],[2,9],[5,1],[6,2],[6,4],[5,5]], walls : [[1,2],[2,3],[1,4],[4,5],[5,6],[6,7],[7,2]]},
-  q : {towers : [[3,1],[1,3],[1,7],[3,9],[5,9],[5.5,8.5],[7,7],[7,3],[5,1],[4.5,7.5],[7,9]], walls : [[1,2],[2,3],[3,4],[4,5],[5,7],[7,8],[8,9],[9,1],[10,6],[6,11]]},
-  r : {towers : [[2,1],[2,5],[2,9],[5,1],[6,2],[6,4],[5,5],[6,9]], walls : [[1,2],[2,3],[1,4],[4,5],[5,6],[6,7],[7,2],[2,8]]},
-  s : {towers : [[6.5,2.5],[5,1],[3,1],[1.5,3],[3,5],[5,5],[6.5,7],[5,9],[3,9],[1.5,7.5]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10]]},
-  t : {towers : [[1,1],[4,1],[7,1],[4,9]], walls : [[1,2],[2,3],[2,4]]},
-  u : {towers : [[1,1],[1,7],[3,9],[5,9],[7,7],[7,1]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6]]},
-  v : {towers : [[1,1],[4,9],[7,1]], walls : [[1,2],[2,3]]},
-  w : {towers : [[1,1],[2.5,9],[4,6],[5.5,9],[7,1]], walls : [[1,2],[2,3],[3,4],[4,5]]},
-  x : {towers : [[1,1],[4,5],[7,9],[7,1],[1,9]], walls : [[1,2],[2,3],[4,2],[2,5]]},
-  y : {towers : [[1,1],[4,5],[4,9],[7,1]], walls : [[1,2],[2,3],[4,2]]},
-  z : {towers : [[1,1],[7,1],[1,9],[7,9]], walls : [[1,2],[2,3],[3,4]]},
-  0 : {towers : [[3,1],[1,3],[1,7],[2,8],[3,9],[5,9],[7,7],[7,3],[6,2],[5,1]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,1],[9,4]]},
-  1 : {towers : [[1.5,3.5],[4,1],[4,9],[1.5,9],[6.5,9]], walls : [[1,2],[2,3],[4,3],[3,5]]},
-  2 : {towers : [[1.5,2.5],[3,1],[5,1],[6.5,2.5],[6.5,4],[1.5,9],[6.5,9]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6],[6,7]]},
-  3 : {towers : [[1.5,2.5],[3,1],[5,1],[6.5,2.5],[6,5],[4,5],[6.5,7.5],[5,9],[3,9],[1.5,7.5]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6],[5,7],[7,8],[8,9],[9,10]]},
-  4 : {towers : [[6.5,6],[5,6],[1.5,6],[5,1.5],[5,8.5]], walls : [[1,2],[2,3],[3,4],[4,2],[2,5]]},
-  5 : {towers : [[6,1],[1.5,1],[1.5,5],[4.5,5],[6,6],[6,8],[4.5,9],[1.5,9]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8]]},
-  6 : {towers : [[6,1],[3,1],[1.5,3],[1.5,5.5],[1.5,7.5],[3,9],[5,9],[6.5,7.5],[6.5,5.5],[5,4],[3,4]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,4]]},
-  7 : {towers : [[1,1],[7,1],[4,5],[1,9],[2,5],[6,5]], walls : [[1,2],[2,3],[3,4],[5,3],[3,6]]},
-  8 : {towers : [[6,4],[6,2],[5,1],[3,1],[2,2],[2,4],[3,5],[5,5],[6,6],[6,8],[5,9],[3,9],[2,8],[2,6]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,9],[9,10],[10,11],[11,12],[12,13],[13,14],[14,7],[8,1]]},
-  9 : {towers : [[6.5,4.5],[6.5,2.5],[5,1],[3,1],[1.5,2.5],[1.5,4.5],[3,6],[5,6],[6.5,7],[5,9],[2,9]], walls : [[1,2],[2,3],[3,4],[4,5],[5,6],[6,7],[7,8],[8,1],[1,9],[9,10],[10,11]]},
-  non : {towers : [], walls : []},
-}
+  a: {
+    towers: [
+      [1, 9],
+      [2.5, 5],
+      [4, 1],
+      [5.5, 5],
+      [7, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [2, 4],
+    ],
+  },
+  b: {
+    towers: [
+      [1.75, 9],
+      [1.75, 5],
+      [1.75, 1],
+      [4.75, 1],
+      [6.25, 3],
+      [4.75, 5],
+      [6.25, 7],
+      [4.75, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [6, 2],
+      [6, 7],
+      [7, 8],
+      [8, 1],
+    ],
+  },
+  c: {
+    towers: [
+      [7, 3],
+      [5, 1],
+      [3, 1],
+      [1, 3],
+      [1, 7],
+      [3, 9],
+      [5, 9],
+      [7, 7],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [6, 7],
+      [7, 8],
+    ],
+  },
+  d: {
+    towers: [
+      [1.5, 1],
+      [4.5, 1],
+      [6.5, 3],
+      [6.5, 7],
+      [4.5, 9],
+      [1.5, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [6, 1],
+    ],
+  },
+  e: {
+    towers: [
+      [6.5, 1],
+      [1.5, 1],
+      [1.5, 5],
+      [5.5, 5],
+      [1.5, 9],
+      [6.5, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [3, 5],
+      [5, 6],
+    ],
+  },
+  f: {
+    towers: [
+      [7, 1],
+      [2, 1],
+      [2, 4.5],
+      [6, 4.5],
+      [2, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [3, 5],
+    ],
+  },
+  g: {
+    towers: [
+      [6.5, 3],
+      [5, 1],
+      [2.5, 1],
+      [1, 3],
+      [1, 6.5],
+      [2.5, 9],
+      [6.5, 9],
+      [6.5, 6],
+      [3.5, 6],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [6, 7],
+      [7, 8],
+      [8, 9],
+    ],
+  },
+  h: {
+    towers: [
+      [2, 1],
+      [2, 5],
+      [2, 9],
+      [6, 1],
+      [6, 5],
+      [6, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [4, 5],
+      [5, 6],
+      [2, 5],
+    ],
+  },
+  i: {
+    towers: [
+      [2, 1],
+      [4, 1],
+      [6, 1],
+      [2, 9],
+      [4, 9],
+      [6, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [2, 5],
+      [4, 5],
+      [5, 6],
+    ],
+  },
+  j: {
+    towers: [
+      [3, 1],
+      [6, 1],
+      [6, 7],
+      [4.5, 8.5],
+      [3, 8.5],
+      [1.5, 7],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+    ],
+  },
+  k: {
+    towers: [
+      [2, 1],
+      [2, 5],
+      [2, 9],
+      [6, 1],
+      [6, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [2, 4],
+      [2, 5],
+    ],
+  },
+  l: {
+    towers: [
+      [1.5, 1],
+      [1.5, 9],
+      [6.5, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+    ],
+  },
+  m: {
+    towers: [
+      [1, 9],
+      [1, 1],
+      [4, 4],
+      [7, 1],
+      [7, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+    ],
+  },
+  n: {
+    towers: [
+      [1.5, 9],
+      [1.5, 1],
+      [6.5, 9],
+      [6.5, 1],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+    ],
+  },
+  o: {
+    towers: [
+      [3, 1],
+      [1, 3],
+      [1, 7],
+      [3, 9],
+      [5, 9],
+      [7, 7],
+      [7, 3],
+      [5, 1],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [6, 7],
+      [7, 8],
+      [8, 1],
+    ],
+  },
+  p: {
+    towers: [
+      [2, 1],
+      [2, 5],
+      [2, 9],
+      [5, 1],
+      [6, 2],
+      [6, 4],
+      [5, 5],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [1, 4],
+      [4, 5],
+      [5, 6],
+      [6, 7],
+      [7, 2],
+    ],
+  },
+  q: {
+    towers: [
+      [3, 1],
+      [1, 3],
+      [1, 7],
+      [3, 9],
+      [5, 9],
+      [5.5, 8.5],
+      [7, 7],
+      [7, 3],
+      [5, 1],
+      [4.5, 7.5],
+      [7, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 7],
+      [7, 8],
+      [8, 9],
+      [9, 1],
+      [10, 6],
+      [6, 11],
+    ],
+  },
+  r: {
+    towers: [
+      [2, 1],
+      [2, 5],
+      [2, 9],
+      [5, 1],
+      [6, 2],
+      [6, 4],
+      [5, 5],
+      [6, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [1, 4],
+      [4, 5],
+      [5, 6],
+      [6, 7],
+      [7, 2],
+      [2, 8],
+    ],
+  },
+  s: {
+    towers: [
+      [6.5, 2.5],
+      [5, 1],
+      [3, 1],
+      [1.5, 3],
+      [3, 5],
+      [5, 5],
+      [6.5, 7],
+      [5, 9],
+      [3, 9],
+      [1.5, 7.5],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [6, 7],
+      [7, 8],
+      [8, 9],
+      [9, 10],
+    ],
+  },
+  t: {
+    towers: [
+      [1, 1],
+      [4, 1],
+      [7, 1],
+      [4, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [2, 4],
+    ],
+  },
+  u: {
+    towers: [
+      [1, 1],
+      [1, 7],
+      [3, 9],
+      [5, 9],
+      [7, 7],
+      [7, 1],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+    ],
+  },
+  v: {
+    towers: [
+      [1, 1],
+      [4, 9],
+      [7, 1],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+    ],
+  },
+  w: {
+    towers: [
+      [1, 1],
+      [2.5, 9],
+      [4, 6],
+      [5.5, 9],
+      [7, 1],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+    ],
+  },
+  x: {
+    towers: [
+      [1, 1],
+      [4, 5],
+      [7, 9],
+      [7, 1],
+      [1, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [4, 2],
+      [2, 5],
+    ],
+  },
+  y: {
+    towers: [
+      [1, 1],
+      [4, 5],
+      [4, 9],
+      [7, 1],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [4, 2],
+    ],
+  },
+  z: {
+    towers: [
+      [1, 1],
+      [7, 1],
+      [1, 9],
+      [7, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+    ],
+  },
+  0: {
+    towers: [
+      [3, 1],
+      [1, 3],
+      [1, 7],
+      [2, 8],
+      [3, 9],
+      [5, 9],
+      [7, 7],
+      [7, 3],
+      [6, 2],
+      [5, 1],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [6, 7],
+      [7, 8],
+      [8, 9],
+      [9, 10],
+      [10, 1],
+      [9, 4],
+    ],
+  },
+  1: {
+    towers: [
+      [1.5, 3.5],
+      [4, 1],
+      [4, 9],
+      [1.5, 9],
+      [6.5, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [4, 3],
+      [3, 5],
+    ],
+  },
+  2: {
+    towers: [
+      [1.5, 2.5],
+      [3, 1],
+      [5, 1],
+      [6.5, 2.5],
+      [6.5, 4],
+      [1.5, 9],
+      [6.5, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [6, 7],
+    ],
+  },
+  3: {
+    towers: [
+      [1.5, 2.5],
+      [3, 1],
+      [5, 1],
+      [6.5, 2.5],
+      [6, 5],
+      [4, 5],
+      [6.5, 7.5],
+      [5, 9],
+      [3, 9],
+      [1.5, 7.5],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [5, 7],
+      [7, 8],
+      [8, 9],
+      [9, 10],
+    ],
+  },
+  4: {
+    towers: [
+      [6.5, 6],
+      [5, 6],
+      [1.5, 6],
+      [5, 1.5],
+      [5, 8.5],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 2],
+      [2, 5],
+    ],
+  },
+  5: {
+    towers: [
+      [6, 1],
+      [1.5, 1],
+      [1.5, 5],
+      [4.5, 5],
+      [6, 6],
+      [6, 8],
+      [4.5, 9],
+      [1.5, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [6, 7],
+      [7, 8],
+    ],
+  },
+  6: {
+    towers: [
+      [6, 1],
+      [3, 1],
+      [1.5, 3],
+      [1.5, 5.5],
+      [1.5, 7.5],
+      [3, 9],
+      [5, 9],
+      [6.5, 7.5],
+      [6.5, 5.5],
+      [5, 4],
+      [3, 4],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [6, 7],
+      [7, 8],
+      [8, 9],
+      [9, 10],
+      [10, 11],
+      [11, 4],
+    ],
+  },
+  7: {
+    towers: [
+      [1, 1],
+      [7, 1],
+      [4, 5],
+      [1, 9],
+      [2, 5],
+      [6, 5],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [5, 3],
+      [3, 6],
+    ],
+  },
+  8: {
+    towers: [
+      [6, 4],
+      [6, 2],
+      [5, 1],
+      [3, 1],
+      [2, 2],
+      [2, 4],
+      [3, 5],
+      [5, 5],
+      [6, 6],
+      [6, 8],
+      [5, 9],
+      [3, 9],
+      [2, 8],
+      [2, 6],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [6, 7],
+      [7, 8],
+      [8, 9],
+      [9, 10],
+      [10, 11],
+      [11, 12],
+      [12, 13],
+      [13, 14],
+      [14, 7],
+      [8, 1],
+    ],
+  },
+  9: {
+    towers: [
+      [6.5, 4.5],
+      [6.5, 2.5],
+      [5, 1],
+      [3, 1],
+      [1.5, 2.5],
+      [1.5, 4.5],
+      [3, 6],
+      [5, 6],
+      [6.5, 7],
+      [5, 9],
+      [2, 9],
+    ],
+    walls: [
+      [1, 2],
+      [2, 3],
+      [3, 4],
+      [4, 5],
+      [5, 6],
+      [6, 7],
+      [7, 8],
+      [8, 1],
+      [1, 9],
+      [9, 10],
+      [10, 11],
+    ],
+  },
+  non: { towers: [], walls: [] },
+};
 
 let textCursor = {
-  x : 0,
-  y : 0,
-}
+  x: 0,
+  y: 0,
+};
 
 let buildViewMover = document.getElementById("buildView");
 let softlockViewMover = document.getElementById("softlockView");
@@ -245,7 +890,7 @@ document.getElementById("tower-info").style.display = "none";
 document.getElementById("colorPicker").style.display = "none";
 
 const randomNumber = (min, max) =>
-Math.floor(Math.random() * (max - min)) + min;
+  Math.floor(Math.random() * (max - min)) + min;
 
 function buildTower() {
   //console.log("Click detected (" + event.button + ")");
@@ -390,7 +1035,9 @@ function buildShading(towerIDs) {
 function lookForEnshadedArea(index) {
   let startingTower = wallTower1[index];
   let finishTower = wallTower2[index];
-  document.querySelectorAll('.tower')[convertIDtoArray(startingTower)].classList.add('highlighted');
+  document
+    .querySelectorAll(".tower")
+    [convertIDtoArray(startingTower)].classList.add("highlighted");
   let availableWalls = {
     ids: {
       t1: [],
@@ -407,12 +1054,12 @@ function lookForEnshadedArea(index) {
   let possibleWalls = [];
   availableWalls.ids.t1.forEach((t1id, index) => {
     if (t1id === startingTower && availableWalls.availability[index] === 0) {
-      possibleWalls.push({ indx: index, set: 't2' });
+      possibleWalls.push({ indx: index, set: "t2" });
     } else if (
       availableWalls.ids.t2[index] === startingTower &&
       availableWalls.availability[index] === 0
     ) {
-      possibleWalls.push({ indx: index, set: 't1' });
+      possibleWalls.push({ indx: index, set: "t1" });
     }
   });
   if (possibleWalls.length < 1) {
@@ -424,8 +1071,11 @@ function lookForEnshadedArea(index) {
   let arrM = convertIDtoArray(startingTower);
   let arrS = convertIDtoArray(finishTower);
   possibleWalls.forEach((index) => {
-    let arrT = convertIDtoArray(availableWalls.ids['t1'][index.indx]);
-    arrT = arrT === arrM ? convertIDtoArray(availableWalls.ids['t2'][index.indx]) : arrT;
+    let arrT = convertIDtoArray(availableWalls.ids["t1"][index.indx]);
+    arrT =
+      arrT === arrM
+        ? convertIDtoArray(availableWalls.ids["t2"][index.indx])
+        : arrT;
     offests.push(
       getOffset(
         towerXpos[arrS],
@@ -450,22 +1100,18 @@ function lookForEnshadedArea(index) {
   /*let finalTower = convertIDtoArray(availableWalls.ids[possibleWalls[closestTower.index].set][possibleWalls[
       closestTower.index
     ].indx]);*/
-  availableWalls.availability[possibleWalls[
-    closestTower.index
-  ].indx] = 1;
+  availableWalls.availability[possibleWalls[closestTower.index].indx] = 1;
   document
     .querySelectorAll(".tower")
     [
       convertIDtoArray(
-        availableWalls.ids[possibleWalls[closestTower.index].set][possibleWalls[
-          closestTower.index
-        ].indx]
+        availableWalls.ids[possibleWalls[closestTower.index].set][
+          possibleWalls[closestTower.index].indx
+        ]
       )
     ].classList.add("highlighted");
 }
-function getNextTower(availableWalls, startTower, currentTower){
-  
-}
+function getNextTower(availableWalls, startTower, currentTower) {}
 
 function getOffset(X1, Y1, X2, Y2, X3, Y3) {
   let v13 = { x: X3 - X1, y: Y3 - Y1 };
@@ -957,7 +1603,7 @@ function convertIDtoArray(IDtoConvert) {
     }
     default: {
       someErrorHere();
-      console.log("Type: " + type);// + "  - Coming from: " + comingFrom);
+      console.log("Type: " + type); // + "  - Coming from: " + comingFrom);
       return 0;
     }
   }
@@ -1380,8 +2026,8 @@ function loadMapFile() {
           temp = 1;
         }
         createTower(
-          loadedFile[n + 2] * 20 + randomNumber(-10, 10)*0,
-          loadedFile[n + 3] * 20 + randomNumber(-10, 10)*0,
+          loadedFile[n + 2] * 20 + randomNumber(-10, 10) * 0,
+          loadedFile[n + 3] * 20 + randomNumber(-10, 10) * 0,
           Number(loadedFile[n + 1]) + startingTowerID,
           temp
         );
@@ -2105,26 +2751,33 @@ function pasteTowers() {
   }
 }
 
-function inputWText(text){
+function inputWText(text) {
   let chars = Array.from(text);
-  chars.forEach(char => {
+  chars.forEach((char) => {
     writeIG(char, textCursor);
     textCursor.x += textCursor.x < 40 ? 1 : -textCursor.x;
     textCursor.y += textCursor.x === 0 ? 1 : 0;
   });
 }
 
-function writeIG(character, cursor, fontSize = 20, offset){
-  let drawingData = character.toLowerCase() in allCharacters ? allCharacters[character.toLowerCase()] : allCharacters.non;
-  drawingData.towers.forEach(tower => {
-    createTower((tower[0] + cursor.x*8) * fontSize, (tower[1] + cursor.y*10) * fontSize, i);
+function writeIG(character, cursor, fontSize = 20, offset) {
+  let drawingData =
+    character.toLowerCase() in allCharacters
+      ? allCharacters[character.toLowerCase()]
+      : allCharacters.non;
+  drawingData.towers.forEach((tower) => {
+    createTower(
+      (tower[0] + cursor.x * 8) * fontSize,
+      (tower[1] + cursor.y * 10) * fontSize,
+      i
+    );
   });
   let towerCt = drawingData.towers.length + 1;
   let aTowerCt = towerID.length;
-  console.log('here');
-  drawingData.walls.forEach(wall => {
+  console.log("here");
+  drawingData.walls.forEach((wall) => {
     createWall(aTowerCt - towerCt + wall[0], aTowerCt - towerCt + wall[1]);
-  })
+  });
 }
 
 function getMidOfTowers(towers) {
@@ -2401,9 +3054,15 @@ function hideHotkeyMenu() {
 }
 
 function changeMapDimensions() {
-  confirmAction("Enter new map width", 4, "Change", "Cancel", true);
-  theMap.style.width = mapWidth * 20;
-  theMap.style.height = mapWidth * 20;
+  let newWidth = document.querySelector("#inputMapWidth").value;
+  let newHeight = document.querySelector("#inputMapHeight").value;
+  theMap.style.width = newWidth * 20;
+  theMap.style.height = newHeight * 20;
+  mapWidth = newWidth;
+  mapHeight = newHeight;
+  let svg = document.querySelector("#mapShadingSvg");
+  svg.setAttribute("width", newWidth * 20);
+  svg.setAttribute("height", newHeight * 20);
 }
 
 function playableSpace() {
@@ -2536,12 +3195,12 @@ function confirmAction(
   if (actionToConfirm == 3) {
     document.getElementById("confirmInputBox").value = selectedTowerColor;
   }
-  if (actionToConfirm == 4) {
+  /*if (actionToConfirm == 4) {
     document.getElementById("confirmInputBox").value = mapWidth;
   }
   if (actionToConfirm == 4.1) {
     document.getElementById("confirmInputBox").value = mapHeight;
-  }
+  }*/
   button1.onclick = function () {
     document.getElementById("confirm").style.display = "none";
     mapStuff.classList.remove("blurred");
@@ -2563,7 +3222,7 @@ function confirmAction(
         selectedTowerColor = document.getElementById("confirmInputBox").value;
         break;
       }
-      case 4: {
+      /*case 4: {
         longtemp = document.getElementById("confirmInputBox").value;
         confirmAction("Enter new map height", 4.1, "Change", "Cancel", true);
         break;
@@ -2577,7 +3236,7 @@ function confirmAction(
         svg.setAttribute("width", mapWidth * 20);
         svg.setAttribute("height", mapHeight * 20);
         break;
-      }
+      }*/
     }
   };
   button2.onclick = function () {
@@ -2768,8 +3427,11 @@ document.addEventListener("keydown", function (event) {
       );*/
       break;
     }
-    case 'q':{
-      writeIG('a',{x : Math.floor(mousePos.x / 160), y : Math.floor(mousePos.y / 200)});
+    case "q": {
+      writeIG("a", {
+        x: Math.floor(mousePos.x / 160),
+        y: Math.floor(mousePos.y / 200),
+      });
     }
   }
   //console.log("Keydown: " + event.key + "  - Ctrl: " + Ctrl + " - Shift: " + Shift);
@@ -2778,7 +3440,7 @@ document.addEventListener("keyup", function (event) {
   if (openMenu) {
     return;
   }
-  temp = event.key.toLowerCase();;
+  temp = event.key.toLowerCase();
   switch (temp) {
     case hotkeys.Ctrl: {
       Ctrl = false;
@@ -2804,7 +3466,7 @@ document.addEventListener("keyup", function (event) {
       break;
     }
     case hotkeys.c: {
-      if(event.ctrlKey) CopyFile();
+      if (event.ctrlKey) CopyFile();
       else coppyTowers();
       break;
     }
@@ -2832,10 +3494,10 @@ document.addEventListener("keyup", function (event) {
       rightD = false;
       return;
     }
-    case 'l': {
-      if(event.altKey){
+    case "l": {
+      if (event.altKey) {
         let data = [];
-        for(let c = 100; c < 110; c++){
+        for (let c = 100; c < 110; c++) {
           data.push(getPixData(c, 100));
         }
         console.log(data);

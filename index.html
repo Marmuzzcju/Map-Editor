@@ -33,7 +33,7 @@
 			<span style="margin-left:86px; font-size:22; color:rgb(7, 7, 60);">Options Menu</span></br>
 			<button id="hideMenu" class="fatButton" onclick="document.getElementById('menu').style.display = 'none'; document.getElementById('showMenu').style.display = 'inline';">Hide Menu</button></br>
 			<button id="showHelp" class="fatButton" onclick="document.getElementById('instructions').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">Help/Instructions</button> </br>
-			<button class="fatButton" onclick="CopyFile()">Copy Map File</button> </br>
+			<button class="fatButton" onclick="CopyFile()">Copy Map File (ctrl + c)</button> </br>
 			<button class="fatButton" onclick="showDownloadMapOptions();openMenu=true;">Download Map File</button> </br>  <!-- onclick="downloadMapFile('map-editor-v1.7.mapFile.txt')" -->
 			<button class="fatButton" onclick="document.getElementById('uploadMapFileButton').click();">Load Map File</button> </br>
 			<input type="file" id="uploadMapFileButton" onchange="getFile(this)">
@@ -44,8 +44,8 @@
 			<button class="fatButton" onclick="document.getElementById('hotkeys').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">View/Change Hotkeys</button> </br>
 			<button class="fatButton" onclick="confirmAction('Are you sure you want to delete your current map?\nDeleting map will also erase your undo/redo history', 1, 'Confirm', 'Cancel', 0);openMenu=true;">Clear Map</button> </br>
 			<button class="fatButton" onclick="confirmAction('Enter new snap range:', 2, 'Update snap range', 'Cancel', 1);openMenu=true;">Change Snap range</button> </br>
+			<span style="padding-left: 11px;font-size: 17px;">Map Width: </span><input type="number" value="210" min="1" max="10000" id="inputMapWidth" onfocus="this.select();openMenu=true;" onblur="openMenu=false;" style="width:45px;"onchange="changeMapDimensions();"><span style="font-size: 17px;"> Map Height:</span><input type="number" value="120" min="1" max="10000" id="inputMapHeight" onfocus="this.select();openMenu=true;" onblur="openMenu=false;" style="width: 45px;"onchange="changeMapDimensions();"> </br>
 			<button class="fatButton" onclick="document.getElementById('distance-overview-table').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">View Distance Table</button> </br>
-			<button class="fatButton" onclick="changeMapDimensions();openMenu=true;">Change Map Dimensions</button> </br>
 			<button class="fatButton" onclick="showMapOverview(1)">View Map Overview</button> </br>
   		</div>
 	</div>
