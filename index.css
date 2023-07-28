@@ -1,346 +1,354 @@
 body {
-    font-family: Arial, Helvetica, sans-serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
-table, tr, th, td {
-    border: 1px solid black;
-    border-collapse: collapse;
+table,
+tr,
+th,
+td {
+  border: 1px solid black;
+  border-collapse: collapse;
 }
 
 tr {
-    height: 50;
+  height: 50;
 }
 
-th, td {
-    width: 10;
+th,
+td {
+  width: 10;
 }
 
 tr:nth-child(even) {
-    background-color: #D6EEEE;
+  background-color: #d6eeee;
 }
 tr:nth-child(odd) {
-    background-color: #167e7e;
+  background-color: #167e7e;
 }
- 
+
 #MapEditorMap {
-    position: fixed;
-    top: 0px;
-    left: 0px;
-    background-image: url('https://defly.io/img/background-grid.png');/*url("pixil-frame-0 (1).png");*/
-    background-size: 40px 40px;
-    background-position-x: 20px;
-    background-position-y: 20px;/*remove those two if better img with right dimensions/svg*/
-    width: 4200;
-    height: 2400;
-    outline-style: solid;
-    outline-color: black;
-    outline-width: 1px;
-    z-index: 1;
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  background-image: url("https://defly.io/img/background-grid.png"); /*url("pixil-frame-0 (1).png");*/
+  background-size: 40px 40px;
+  background-position-x: 20px;
+  background-position-y: 20px; /*remove those two if better img with right dimensions/svg*/
+  width: 4200;
+  height: 2400;
+  outline-style: solid;
+  outline-color: black;
+  outline-width: 1px;
+  z-index: 1;
 }
 #MapEditorMap:hover {
-    cursor: crosshair;
+  cursor: crosshair;
 }
 
 #justBackground {
-    position: fixed;
-    top: 0%;
-    left: 0%;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-    /*background-color: blue;*/
+  position: fixed;
+  top: 0%;
+  left: 0%;
+  width: 100%;
+  height: 100%;
+  z-index: 0;
+  /*background-color: blue;*/
 }
 #justBackground:hover {
-    cursor: crosshair;
+  cursor: crosshair;
 }
-  
+
 #menu {
-    position: fixed;
-    width: 296px;
-    height: 400px;
-    left: 30px;
-    top: 30px;
-    background-color: rgba(10, 10, 10, 0.5);
-    border-radius: 10px;
-    z-index: 100;
+  position: fixed;
+  width: 296px;
+  height: 400px;
+  left: 30px;
+  top: 30px;
+  background-color: rgba(10, 10, 10, 0.5);
+  border-radius: 10px;
+  z-index: 100;
 }
-  
+
 #chunkSelection {
-    position: absolute;
-    width: 40px;
-    height: 40px;
-    top: 100px;
-    left: 100px;
-    background-color: rgba(200, 130, 0, 0.4);
-    outline-style: dotted;
-    outline-color: rgba(200, 130, 0, 0.8);
-    z-index: 11;
-    pointer-events: none;
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  top: 100px;
+  left: 100px;
+  background-color: rgba(200, 130, 0, 0.4);
+  outline-style: dotted;
+  outline-color: rgba(200, 130, 0, 0.8);
+  z-index: 11;
+  pointer-events: none;
 }
-  
+
 #buildView {
-    position: absolute;
-    width: 22px;
-    height: 22px;
-    top: 100px;
-    left: 100px;
-    border-radius: 20px;
-    opacity: 0.3;
-    z-index: 11;
-    pointer-events: none;
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  top: 100px;
+  left: 100px;
+  border-radius: 20px;
+  opacity: 0.3;
+  z-index: 11;
+  pointer-events: none;
 }
 #softlockView {
-    position: absolute;
-    width: 599;
-    height: 599;
-    top: 0px;
-    left: 0px;
-    border-radius: 600px;
-    background-color: rgba(0, 0, 0, 0);
-    z-index: 11;
-    pointer-events: none;
-    outline-style: solid;
-    outline-color: rgba(200, 10, 10, 0.9);
+  position: absolute;
+  width: 599;
+  height: 599;
+  top: 0px;
+  left: 0px;
+  border-radius: 600px;
+  background-color: rgba(0, 0, 0, 0);
+  z-index: 11;
+  pointer-events: none;
+  outline-style: solid;
+  outline-color: rgba(200, 10, 10, 0.9);
 }
 
 #mapShadingSvg {
-    position: absolute;
-    top: 0;
-    left: 0;
-    z-index: 4;
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 4;
 }
-  
+
 #info-box {
-    position: fixed;
-    top: 1.5%;
-    right: 1%;
-    width: auto;
-    height: auto;
-    padding: 6px 3px;
-    border-style: none;
-    border-radius: 4px;
-    border-width: 3px;
-    border-color: black;
-    z-index: 12;
-    pointer-events: none;
+  position: fixed;
+  top: 1.5%;
+  right: 1%;
+  width: auto;
+  height: auto;
+  padding: 6px 3px;
+  border-style: none;
+  border-radius: 4px;
+  border-width: 3px;
+  border-color: black;
+  z-index: 12;
+  pointer-events: none;
 }
 #coords-info {
-    position: fixed;
-    right: 0.5%;
-    bottom: 0.5%;
-    /*padding-right: 0.5%;
+  position: fixed;
+  right: 0.5%;
+  bottom: 0.5%;
+  /*padding-right: 0.5%;
     padding-bottom: 0.5%;*/
-    background-color: rgba(200,200,200,0.5);
+  background-color: rgba(200, 200, 200, 0.5);
 }
 
 #mapFileFormatSelection {
-    position: absolute;
-    bottom: 10%;
-    left: 72%;
-    font-size: 20px;
+  position: absolute;
+  bottom: 10%;
+  left: 72%;
+  font-size: 20px;
 }
 
 .tower {
-    /*background-color:rgb(80, 80, 80);*/
-    width: 20px;
-    height: 20px;
-    position: absolute;
-    z-index: 10;
-    border-radius: 20px;
-    border-style: solid;
-    border-width: 2px;
-    border-color: rgba(0,0,0,0.3);
-    /*border-style: solid transparent;*/
+  /*background-color:rgb(80, 80, 80);*/
+  width: 20px;
+  height: 20px;
+  position: absolute;
+  z-index: 10;
+  border-radius: 20px;
+  border-style: solid;
+  border-width: 2px;
+  border-color: rgba(0, 0, 0, 0.3);
+  /*border-style: solid transparent;*/
 }
-  
+
 .wall {
-    /*background-color:blue;*/
-    height: 8px;
-    position: absolute;
-    z-index: 5;
-    pointer-events: none;
-    border-style: solid;
-    border-width: 2px 0px;
-    border-color: rgba(0,0,0,0.3);
+  /*background-color:blue;*/
+  height: 8px;
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  border-style: solid;
+  border-width: 2px 0px;
+  border-color: rgba(0, 0, 0, 0.3);
 }
 
 .bombSpot {
-    position: absolute;
-    z-index: 4;
-    width: 240;
-    height: 240;
-    pointer-events: none;
+  position: absolute;
+  z-index: 4;
+  width: 240;
+  height: 240;
+  pointer-events: none;
 }
 
 .spawnPoint {
-    position: absolute;
-    z-index: 3;
-    width: 240;
-    height: 240;
-    outline-style: solid;
-    outline: red;
-    outline-width: 3px;
-    pointer-events: none;
+  position: absolute;
+  z-index: 3;
+  width: 240;
+  height: 240;
+  outline-style: solid;
+  outline: red;
+  outline-width: 3px;
+  pointer-events: none;
 }
- 
+
 .highlighted {
-    z-index: 11;
-    outline-style: solid;
-    outline-color: rgba(255, 0, 0, 0.7);
+  z-index: 11;
+  outline-style: solid;
+  outline-color: rgba(255, 0, 0, 0.7);
 }
-  
+
 .shielded {
-    outline-style: solid;
-    outline-color: rgba(20, 20, 20, 0.8);
+  outline-style: solid;
+  outline-color: rgba(20, 20, 20, 0.8);
 }
-  
+
 .instructionContentPage {
-    font-size: 25px;
-    position: fixed;
-    top: 16%;
-    left: 13%;
-    width: 74%;
-    height: 68%;
-    /*background-color: red;*/
+  font-size: 25px;
+  position: fixed;
+  top: 16%;
+  left: 13%;
+  width: 74%;
+  height: 68%;
+  /*background-color: red;*/
 }
-  
+
 .infoScroller {
-    position: fixed;
-    left: 10%;
-    top: 10%;
-    width: 80%;
-    height: 80%;
-    background-color: rgba(240, 240, 240, 0.96);
-    border-radius: 3px;
+  position: fixed;
+  left: 10%;
+  top: 10%;
+  width: 80%;
+  height: 80%;
+  background-color: rgba(240, 240, 240, 0.96);
+  border-radius: 3px;
 }
- 
+
 .infoBackground {
-    position: fixed;
-    left: 0px;
-    top: 0px;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(10, 10, 10, 0.6);
-    z-index: 1000;
+  position: fixed;
+  left: 0px;
+  top: 0px;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(10, 10, 10, 0.6);
+  z-index: 1000;
 }
 
 .clickable:hover {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 .blurred {
-    filter: blur(4px);
-    position: fixed;
+  /*filter: blur(4px);*/
+  /*position: fixed;*/
 }
 
 .hidden {
-    display: none;
+  display: none;
 }
 
 .shown {
-    display: inline;
+  display: inline;
 }
 
 .infoTitle {
-    position: fixed;
-    top: 7%;
-    left: 40%;
-    font-size: 40px;
+  position: fixed;
+  top: 7%;
+  left: 40%;
+  font-size: 40px;
 }
 
 .fixed {
-    position: fixed;
+  position: fixed;
 }
 
 .ln1 {
-    left: 15%;
+  left: 15%;
 }
 .ln2 {
-    left: 40%;
+  left: 40%;
 }
 .ln3 {
-    left: 65%;
+  left: 65%;
 }
 .col1 {
-    top: 25%;
+  top: 25%;
 }
 .col2 {
-    top: 47.5%;
+  top: 47.5%;
 }
 .col3 {
-    top: 70%;
+  top: 70%;
 }
 .col1B {
-    top: 26.5%;
+  top: 26.5%;
 }
 .col2B {
-    top: 49%;
+  top: 49%;
 }
 .col3B {
-    top: 71.5%;
+  top: 71.5%;
 }
 
 .colorPickerLine1 {
-    left:13%;
+  left: 13%;
 }
 .colorPickerLine2 {
-    left:28%;
+  left: 28%;
 }
 .colorPickerLine3 {
-    left:43%;
+  left: 43%;
 }
 .colorPickerLine4 {
-    left:58%;
+  left: 58%;
 }
 .colorPickerLine5 {
-    left:73%;
+  left: 73%;
 }
 .colorPickerColum1 {
-    top:20%;
+  top: 20%;
 }
 .colorPickerColum2 {
-    top:45%;
+  top: 45%;
 }
 .colorPickerColum3 {
-    top:70%;
+  top: 70%;
 }
-  
+
+.table-header {
+  width: 13vw;
+}
+
 .hotkeys.button {
-    position: fixed;
-    font-size: 15px;
-    width: 60px;
+  position: fixed;
+  font-size: 15px;
+  width: 60px;
 }
-  
+
 .fatButton {
-    font-size: 20px;
-    width: 280px;
-    margin: 1px 8px;
-    /* background-color: rgba(100, 100, 250, 01); */
+  font-size: 20px;
+  width: 280px;
+  margin: 1px 8px;
+  /* background-color: rgba(100, 100, 250, 01); */
 }
 
 .closeButton {
-    width:30px;
-    height:30px;
-    position:fixed;
-    right:11%;
-    top:11.5%;
-    z-index:1;
+  width: 30px;
+  height: 30px;
+  position: fixed;
+  right: 11%;
+  top: 11.5%;
+  z-index: 1;
 }
 
 .increaseDecreaseButton {
-    width:18px;
-    height:19px;
-    padding:1px 3px;
-    pointer-events: auto;
+  width: 18px;
+  height: 19px;
+  padding: 1px 3px;
+  pointer-events: auto;
 }
 
 .colorPickerButton {
-    font-size: 20px;
-    width: 200px;
-    height: 100px;
-    margin: 1px 8px;
+  font-size: 20px;
+  width: 200px;
+  height: 100px;
+  margin: 1px 8px;
 }
 
 button:hover {
-    cursor: pointer;
+  cursor: pointer;
 }

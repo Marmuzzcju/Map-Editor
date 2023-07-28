@@ -3,14 +3,14 @@ Map editor
     TO DO LIST:
 
         - finish undo/redo
-          >Delete chunk > undo > redo will only delete one tower  <- !!!important fix
+          >Delete chunk > undo > redo will only delete one tower  <- fix this bug!!
         
         (- add clean file support)
         (- add map file types)
         
         - add structure generator (support for map editor script 1 in editor)
 
-        - add shaded support  <- working on that rn
+        - add shaded support  <- working on that since late april/may
 
         - add non-shielded towers in shielded terrain support
 
@@ -20,9 +20,7 @@ Map editor
 
         - resize group of towers / entire map
 
-        - download/coppy/load structure
-
-        - calculate absolute playable space (map space - shaded space)
+        - download/coppy/load structure  <- working since 15.07
 
         - ...
 
@@ -77,7 +75,7 @@ Map editor
           >ctrl/shift attributes to add/toggle or select all towers apply
 
         - build-previewer:  - 12.02
-          >small halh visible tower as build preview
+          >small half visible tower as build preview
 
         - added snap to 'grid'  - 12.02
           >snap range costumazible
@@ -200,5 +198,15 @@ Map editor
         - added first stage of clean map support:  - 22.05
           >all ids clean - upgoing 1 - X
           >all cords rounded to up to 4 decimal places
+
+        - started working on structure implementation:  - 15.07
+          >first test/version with hardcoded values (characters a-z + numbers)
+          >will later be with copy structure -> paste structure
+          >similar to copy/paste but can import structures from other maps
+          > + can be used to write (cf. maps: Lore Ipsum, pi 1k)
+
+        - ui change of map resize:  - 18.07
+          >previously button + two times inut value
+          ->iput right on the menu
 
         

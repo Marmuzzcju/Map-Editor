@@ -2236,8 +2236,10 @@ function showMapOverview(state) {
   //-here
   if (state === 1) {
     document.getElementById("mapOverview").classList.remove("hidden");
+    openMenu = true;
   } else {
     document.getElementById("mapOverview").classList.add("hidden");
+    openMenu = false;
   }
 }
 
@@ -2299,7 +2301,7 @@ function transformClientToMapCoords(originalCoords) {
 
 function changeSnapRange(newSnapRange) {
   //let newSnapRange = prompt("Enter new snap range: ", snapRadius);
-  if (newSnapRange == null || newSnapRange == "") {
+  if (!newSnapRange) {
     return;
   } else {
     if (isNaN(newSnapRange)) {
@@ -2950,6 +2952,7 @@ function startPathCalculation(step) {
     temp = document.querySelectorAll("#table-sniperCopter > td");
     temp[row].innerHTML = (pathDistance / 7.2).toFixed(2) + " s"; //sniper speed ~3.6 grids per second / 7.2 units
     document.getElementById("distance-overview-table").style.display = "inline";
+    openMenu = true;
     document.getElementById("tower-info-pathCalculation-button").innerHTML =
       "Start Path Calculation";
     return;
@@ -3045,12 +3048,24 @@ function hideHotkeyMenu() {
     hotkeyToChange.innerHTML = currentHotkey;
     currentHotkey = -1;
   }
-  hotkeys.Ctrl = document.getElementById("hotkeys.changeCtrl").innerHTML;
-  hotkeys.Shift = document.getElementById("hotkeys.changeShift").innerHTML;
-  hotkeys.Delete = document.getElementById("hotkeys.changeDelete").innerHTML;
-  hotkeys.g = document.getElementById("hotkeys.changeg").innerHTML;
-  hotkeys.b = document.getElementById("hotkeys.changeb").innerHTML;
-  hotkeys.Enter = document.getElementById("hotkeys.changeEnter").innerHTML;
+  hotkeys.Ctrl = document
+    .getElementById("hotkeys.changeCtrl")
+    .innerHTML.toLowerCase();
+  hotkeys.Shift = document
+    .getElementById("hotkeys.changeShift")
+    .innerHTML.toLowerCase();
+  hotkeys.Delete = document
+    .getElementById("hotkeys.changeDelete")
+    .innerHTML.toLowerCase();
+  hotkeys.g = document
+    .getElementById("hotkeys.changeg")
+    .innerHTML.toLowerCase();
+  hotkeys.b = document
+    .getElementById("hotkeys.changeb")
+    .innerHTML.toLowerCase();
+  hotkeys.Enter = document
+    .getElementById("hotkeys.changeEnter")
+    .innerHTML.toLowerCase();
 }
 
 function changeMapDimensions() {
@@ -3456,6 +3471,8 @@ document.addEventListener("keyup", function (event) {
     }
     case hotkeys.g: {
       G_snapToGrid = !G_snapToGrid;
+      document.querySelector("#enableSnapToGridCheckbox").checked =
+        G_snapToGrid;
       //console.log("TOGGLED: " + G_snapToGrid);
       break;
     }
@@ -3522,7 +3539,7 @@ document.addEventListener("mouseup", function () {
 
 function notWorkingYet() {
   alert(
-    "Unfortunately, this button's property hasn´t been codded in yet - pls dm Marmuzzcju#5615 for further informations/suggestions and bug reports"
+    "Unfortunately, this button's property hasn't been codded in yet - pls dm Marmuzzcju#5615 for further informations/suggestions and bug reports"
   );
 }
 function someErrorHere() {

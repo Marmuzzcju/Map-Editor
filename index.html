@@ -41,10 +41,10 @@
 			<input type="radio" id="loadNewMap" name="mapLoadingType" value="loadNewMap" class="clickable" checked>
     		<label for="loadAdditionalMap">&nbsp;Load on top: </label>
     		<input type="radio" id="loadAdditionalMap" name="mapLoadingType" value="loadAdditionalMap" class="clickable"><br>
-			<button class="fatButton" onclick="document.getElementById('hotkeys').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">View/Change Hotkeys</button> </br>
 			<button class="fatButton" onclick="confirmAction('Are you sure you want to delete your current map?\nDeleting map will also erase your undo/redo history', 1, 'Confirm', 'Cancel', 0);openMenu=true;">Clear Map</button> </br>
-			<button class="fatButton" onclick="confirmAction('Enter new snap range:', 2, 'Update snap range', 'Cancel', 1);openMenu=true;">Change Snap range</button> </br>
-			<span style="padding-left: 11px;font-size: 17px;">Map Width: </span><input type="number" value="210" min="1" max="10000" id="inputMapWidth" onfocus="this.select();openMenu=true;" onblur="openMenu=false;" style="width:45px;"onchange="changeMapDimensions();"><span style="font-size: 17px;"> Map Height:</span><input type="number" value="120" min="1" max="10000" id="inputMapHeight" onfocus="this.select();openMenu=true;" onblur="openMenu=false;" style="width: 45px;"onchange="changeMapDimensions();"> </br>
+			<span style="padding: 0px 3px 0px 10px;font-size: 17px;">Snap to grid range:</span><input type="number" value="2" min="1" max="1000" id="inputSnapRange" onfocus="this.select();openMenu=true;" onblur="openMenu=false;" style="width:40px;"onchange="changeSnapRange(this.value);"><span style="padding-right: 3px;font-size: 17px;"> Enabled:</span><input type="checkbox" id="enableSnapToGridCheckbox" onchange="G_snapToGrid = this.checked;"> </br>
+			<span style="padding: 0px 3px 0px 10px;font-size: 17px;">Map Width:</span><input type="number" value="210" min="1" max="10000" id="inputMapWidth" onfocus="this.select();openMenu=true;" onblur="openMenu=false;" style="width:45px;"onchange="changeMapDimensions();"><span style="padding-right: 3px;font-size: 17px;"> Map Height:</span><input type="number" value="120" min="1" max="10000" id="inputMapHeight" onfocus="this.select();openMenu=true;" onblur="openMenu=false;" style="width: 45px;"onchange="changeMapDimensions();"> </br>
+			<button class="fatButton" onclick="document.getElementById('hotkeys').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">View/Change Hotkeys</button> </br>
 			<button class="fatButton" onclick="document.getElementById('distance-overview-table').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">View Distance Table</button> </br>
 			<button class="fatButton" onclick="showMapOverview(1)">View Map Overview</button> </br>
   		</div>
@@ -174,6 +174,7 @@
 
 
 <div id="colorPicker" class="infoBackground">
+	<image src="images/close-icon.png" onclick="document.getElementById('colorPicker').style.display = 'none';openMenu=false;" class="clickable closeButton"></image>
 	<div id="colorPickerContent" class="infoScroller">
 		<p class="infoTitle">Select Tower Color</p><!-- !HERE! update change color to this format -->
 		<button class="fixed colorPickerLine1 colorPickerColum1 colorPickerButton" onclick="changeColor(1);" style="background-color: rgb(77,77,77);">1</button>
@@ -190,21 +191,21 @@
 		<button class="fixed colorPickerLine2 colorPickerColum3 colorPickerButton" onclick="changeColor(12);" style="background-color: rgb(147,254,0);">12</button>
 		<button class="fixed colorPickerLine3 colorPickerColum3 colorPickerButton" onclick="changeColor(13);" style="background-color: rgb(0,255,188);">13</button>
 		<button class="fixed colorPickerLine4 colorPickerColum3 colorPickerButton" onclick="changeColor(14);" style="color: rgb(200,200,200); background-color: rgb(0, 0, 0);">14</button>
-		<button class="fixed colorPickerLine5 colorPickerColum3 colorPickerButton"  onclick="document.getElementById('colorPicker').style.display = 'none';"style="background-color: rgb(180, 180, 180);">Close</button>
+		<button class="fixed colorPickerLine5 colorPickerColum3 colorPickerButton"  onclick="document.getElementById('colorPicker').style.display = 'none';openMenu=false;"style="background-color: rgb(180, 180, 180);">Close</button>
 	</div>
 </div>
 
 <div id="distance-overview-table" class="infoBackground" style="display: none;">
 	<image src="images/close-icon.png" id="hideTable" onclick="document.getElementById('distance-overview-table').style.display = 'none';mapStuff.classList.remove('blurred');openMenu=false;" class="clickable closeButton"></image>
 	<div class="infoScroller">
-		<table style="text-align: center; position: relative; top: 10%; left: 3.6%; bottom: 15%; right: 15%; width: 70%; height: 15%;">
+		<table style="text-align: center; position: relative; top: 10%; left: 3vw; bottom: 15%; width: 74vw; height: auto;">
 			<tr>
-				<th></th>
-				<td><input type="text" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 1"></td>
-				<td><input type="text" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 2"></td>
-				<th><input type="text" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 3"></th>
-				<th><input type="text" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 4"></th>
-				<th><input type="text" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 5"></th>
+				<th><span style="width: 9vw"></span></th>
+				<td><input type="text" class="table-header" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 1"></td>
+				<td><input type="text" class="table-header" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 2"></td>
+				<th><input type="text" class="table-header" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 3"></th>
+				<th><input type="text" class="table-header" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 4"></th>
+				<th><input type="text" class="table-header" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 5"></th>
 			</tr>
 			<tr id="table-pathDistance">
 				<th>Distance</th>
