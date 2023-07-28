@@ -110,30 +110,116 @@
 </div>
 
 <div id="hotkeys" class="infoBackground">
-  <image src="images/close-icon.png" id="hideHotkeys" onclick="hideHotkeyMenu();openMenu=false;" class="clickable closeButton">
-  <div id="hotkeysContent" class="infoScroller">
-    <p class="infoTitle">Hotkeys</p>
-	<p style="position:fixed;top:18%;left:38%;">Click any hotkey to change its key</p>
-	<div id="hotkeyList">
-	  <p class="fixed ln1 col1">Select single tower:&nbsp;&nbsp;Left Click</p>
-	  <p class="fixed ln2 col1">Ad/remove from selected towers:</p>
-	  <button class="hotkeys.button col1B" style="left:54%;" id="hotkeys.changeCtrl" onclick="changeHotkey('Ctrl');">Control</button>
-	  <p class="fixed col1" style="left:58.5%"> + Left Click</p>
-	  <p class="fixed ln3 col1">Select all towers:</p>
-	  <button class="hotkeys.button col1B" style="left:72.5%;" id="hotkeys.changeShift" onclick="changeHotkey('Shift');">Shift</button>
-	  <p class="fixed col1" style="left:77%"> + Left Click</p>
-	  <p class="fixed ln1 col2">Place towers:&nbsp;&nbsp;Right Click</p>
-	  <p class="fixed ln2 col2">Delete selected towers:</p>
-	  <button class="hotkeys.button col2B" style="left:50%;" id="hotkeys.changeDelete" onclick="changeHotkey('Delete');">Delete</button>
-	  <p class="fixed ln3 col2">Snap to grid:</p>
-	  <button class="hotkeys.button col2B" style="left:70.5%;" id="hotkeys.changeg" onclick="changeHotkey('g');">g</button>
-	  <p class="fixed ln1 col3">Select area:&nbsp;&nbsp;middle click + drag</p>
-	  <p class="fixed ln2 col3">Shield selected towers:</p>
-	  <button class="hotkeys.button col3B" style="left:50%;" id="hotkeys.changeb" onclick="changeHotkey('b');">b</button>
-	  <!-- <p class="fixed ln3 col3">Move selected towers:&nbsp;&nbsp;[---]</p> -->
-	  <p class="fixed ln3 col3">Connect selected towers:</p>
-	  <button class="hotkeys.button col3B" style="left:75.5%;" id="hotkeys.changeEnter" onclick="changeHotkey('Enter');">Enter</button>
-	</div>
+  <image src="images/close-icon.png" id="hideHotkeys" onclick="hideHotkeyMenu();openMenu=false;" class="clickable closeButton" style="top:7%">
+  <div id="hotkeysContent" class="infoScroller" style="height: 90%;top:5%">
+    <div class="infoTitle">Hotkeys</div>
+	<div style="position:absolute;top:7%;width: 100%;text-align: center;">Click on any hotkey button to change its assigned key</div>
+	<table style="position: absolute;left:0.3vw;top: 10%;text-align: center;">
+		<tr>
+			<th class="table-header">Action</th>
+			<th class="table-header">Hotkey 1</th>
+			<th class="table-header">Hotkey 2</th>
+			<th class="table-header">Action</th>
+			<th class="table-header">Hotkey 1</th>
+			<th class="table-header">Hotkey 2</th>
+		</tr>
+		<tr>
+			<th>Place towers</th>
+			<td>Right Click</td>
+			<td>-</td>
+			<th>Select single tower</th>
+			<td>Left Click</td>
+			<td>-</td>
+		</tr>
+		<tr>
+			<th>Add/Remove tower from selection</th>
+			<td><button id="hotkeys.changeCtrl" onclick="changeHotkey('Ctrl');">Control</button></td>
+			<td>Left Click</td>
+			<th>Select all towers</th>
+			<td><button id="hotkeys.changeShift" onclick="changeHotkey('Shift');">Shift</button></td>
+			<td>Left Click</td>
+		</tr>
+		<tr>
+			<th>Select area of towers</th>
+			<td>Middle click</td>
+			<td>drag</td>
+			<th>Remove selected tower</th>
+			<td><button id="hotkeys.changeDelete" onclick="changeHotkey('Delete');">Delete</button></td>
+			<td>-</td>
+		</tr>
+		<tr>
+			<th>Add shielded property to selected towers</th>
+			<td><button id="hotkeys.changeb" onclick="changeHotkey('b');">b</button></td>
+			<td>-</td>
+			<th>Connect selected towers</th>
+			<td><button id="hotkeys.changeEnter" onclick="changeHotkey('Enter');">Enter</button></td>
+			<td>-</td>
+		</tr>
+		<tr>
+			<th>Snap to grid</th>
+			<td><button id="hotkeys.changeg" onclick="changeHotkey('g');">g</button></td>
+			<td>-</td>
+			<th>Change color</th>
+			<td><button id="hotkeys.changen" onclick="changeHotkey('n');">n</button></td>
+			<td>-</td>
+		</tr>
+		<tr>
+			<th>Move left/right</th>
+			<td><button id="hotkeys.changea" onclick="changeHotkey('a');">a</button></td>
+			<td><button id="hotkeys.changed" onclick="changeHotkey('d');">d</button></td>
+			<th>Move up/down</th>
+			<td><button id="hotkeys.changew" onclick="changeHotkey('w');">w</button></td>
+			<td><button id="hotkeys.changes" onclick="changeHotkey('s');">s</button></td>
+		</tr>
+		<tr>
+			<th>Move selected towers left/right</th>
+			<td><button id="hotkeys.changeArrowLeft" onclick="changeHotkey('ArrowLeft');">ArrowLeft</button></td>
+			<td><button id="hotkeys.changeArrowRight" onclick="changeHotkey('ArrowRight');">ArrowRight</button></td>
+			<th>Move selected towers up/down</th>
+			<td><button id="hotkeys.changeArrowUp" onclick="changeHotkey('ArrowUp');">ArrowUp</button></td>
+			<td><button id="hotkeys.changeArrowDown" onclick="changeHotkey('ArrowDown');">ArrowDown</button></td>
+		</tr>
+		<tr>
+			<th>Copy selected towers</th>
+			<td><button id="hotkeys.changec" onclick="changeHotkey('c');">c</button></td>
+			<td>-</td>
+			<th>Paste copied towers</th>
+			<td><button id="hotkeys.changev" onclick="changeHotkey('v');">c</button></td>
+			<td>-</td>
+		</tr>
+		<tr>
+			<th>Undo</th>
+			<td>Ctrl</td>
+			<td><button id="hotkeys.changez" onclick="changeHotkey('z');">z</button></td>
+			<th>Redo</th>
+			<td>Ctrl</td>
+			<td><button id="hotkeys.changey" onclick="changeHotkey('y');">y</button></td>
+		</tr>
+		<tr>
+			<th>Place defuse bombs</th>
+			<td><button id="hotkeys.change1" onclick="changeHotkey('1');">1</button></td>
+			<td><button id="hotkeys.change2" onclick="changeHotkey('2');">2</button></td>
+			<th>Place defuse spawns</th>
+			<td><button id="hotkeys.change3" onclick="changeHotkey('3');">3</button></td>
+			<td><button id="hotkeys.change4" onclick="changeHotkey('4');">4</button></td>
+		</tr>
+		<!-- <tr>
+			<th></th>
+			<td></td>
+			<td></td>
+			<th></th>
+			<td></td>
+			<td></td>
+		</tr>
+		<tr>
+			<th></th>
+			<td></td>
+			<td></td>
+			<th></th>
+			<td></td>
+			<td></td>
+		</tr> -->
+	</table>
   </div>
 </div>
 
@@ -148,7 +234,7 @@
 <div id="downloadMapOptions" class="infoBackground">
   <image src="images/close-icon.png" id="hideDownloadMapOptions" onclick="document.getElementById('downloadMapOptions').style.display = 'none';mapStuff.classList.remove('blurred');openMenu=false;" class="clickable closeButton">
   <div id="downloadMapOptionsContent" class="infoScroller">
-    <p class="infoTitle">Map file options</p>
+    <div class="infoTitle">Map file options</div>
 	<p style="position:fixed;top:23%;left:24%;font-size:20px;">Map name: </p>
 	<input id="mapName" type="text" onclick="this.select();" style="position:fixed;top:26%;left:30.5%;">
 	<p style="position:fixed;top:23%;left:55%;font-size:20px;">Author name: </p>
@@ -176,7 +262,7 @@
 <div id="colorPicker" class="infoBackground">
 	<image src="images/close-icon.png" onclick="document.getElementById('colorPicker').style.display = 'none';openMenu=false;" class="clickable closeButton"></image>
 	<div id="colorPickerContent" class="infoScroller">
-		<p class="infoTitle">Select Tower Color</p><!-- !HERE! update change color to this format -->
+		<div class="infoTitle">Select Tower Color</div><!-- !HERE! update change color to this format -->
 		<button class="fixed colorPickerLine1 colorPickerColum1 colorPickerButton" onclick="changeColor(1);" style="background-color: rgb(77,77,77);">1</button>
 		<button class="fixed colorPickerLine2 colorPickerColum1 colorPickerButton" onclick="changeColor(2);" style="background-color: rgb(61,93,255);">2</button>
 		<button class="fixed colorPickerLine3 colorPickerColum1 colorPickerButton" onclick="changeColor(3);" style="background-color: rgb(253,53,53);">3</button>
@@ -278,7 +364,7 @@
 <div id="mapOverview" class="infoBackground hidden">
 	<img src="images/close-icon.png" id="hideTable" onclick="showMapOverview(0)" class="clickable closeButton"></image>
 	<div id="mapOverviewContent" class="infoScroller">
-		<p class="infoTitle">Map Overview</p>
+		<div class="infoTitle">Map Overview</div>
 	</div>
 </div>
 

@@ -246,10 +246,12 @@ tr:nth-child(odd) {
 }
 
 .infoTitle {
-  position: fixed;
-  top: 7%;
-  left: 40%;
+  position: absolute;
+  text-align: center;
+  width: 100%;
+  top: 1%;
   font-size: 40px;
+  /*outline: 2px dotted red;*/
 }
 
 .fixed {

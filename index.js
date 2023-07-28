@@ -3057,14 +3057,65 @@ function hideHotkeyMenu() {
   hotkeys.Delete = document
     .getElementById("hotkeys.changeDelete")
     .innerHTML.toLowerCase();
+  hotkeys.Enter = document
+    .getElementById("hotkeys.changeEnter")
+    .innerHTML.toLowerCase();
+  hotkeys.ArrowLeft = document
+    .getElementById("hotkeys.changeArrowLeft")
+    .innerHTML.toLowerCase();
+  hotkeys.ArrowRight = document
+    .getElementById("hotkeys.changeArrowRight")
+    .innerHTML.toLowerCase();
+  hotkeys.ArrowUp = document
+    .getElementById("hotkeys.changeArrowUp")
+    .innerHTML.toLowerCase();
+  hotkeys.ArrowDown = document
+    .getElementById("hotkeys.changeArrowDown")
+    .innerHTML.toLowerCase();
   hotkeys.g = document
     .getElementById("hotkeys.changeg")
     .innerHTML.toLowerCase();
   hotkeys.b = document
     .getElementById("hotkeys.changeb")
     .innerHTML.toLowerCase();
-  hotkeys.Enter = document
-    .getElementById("hotkeys.changeEnter")
+  hotkeys.n = document
+    .getElementById("hotkeys.changen")
+    .innerHTML.toLowerCase();
+  hotkeys.w = document
+    .getElementById("hotkeys.changew")
+    .innerHTML.toLowerCase();
+  hotkeys.a = document
+    .getElementById("hotkeys.changea")
+    .innerHTML.toLowerCase();
+  hotkeys.s = document
+    .getElementById("hotkeys.changes")
+    .innerHTML.toLowerCase();
+  hotkeys.d = document
+    .getElementById("hotkeys.changed")
+    .innerHTML.toLowerCase();
+    hotkeys.c = document
+    .getElementById("hotkeys.changec")
+    .innerHTML.toLowerCase();
+  hotkeys.v = document
+    .getElementById("hotkeys.changev")
+    .innerHTML.toLowerCase();
+  hotkeys.z = document
+    .getElementById("hotkeys.changez")
+    .innerHTML.toLowerCase();
+  hotkeys.y = document
+    .getElementById("hotkeys.changey")
+    .innerHTML.toLowerCase();
+    hotkeys.One = document
+    .getElementById("hotkeys.change1")
+    .innerHTML.toLowerCase();
+  hotkeys.Two = document
+    .getElementById("hotkeys.change2")
+    .innerHTML.toLowerCase();
+  hotkeys.Three = document
+    .getElementById("hotkeys.change3")
+    .innerHTML.toLowerCase();
+  hotkeys.Four = document
+    .getElementById("hotkeys.change4")
     .innerHTML.toLowerCase();
 }
 
