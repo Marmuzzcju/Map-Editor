@@ -114,28 +114,28 @@ let rightD = false;
 let movementSpeed = 4;
 
 let hotkeys = {
-  Ctrl: "control",
-  Shift: "shift",
-  Enter: "enter",
-  Delete: "delete",
-  ArrowUp: "arrowup",
-  ArrowDown: "arrowdown",
-  ArrowLeft: "arrowleft",
-  ArrowRight: "arrowright",
-  g: "g",
-  b: "b",
-  r: "r",
-  c: "c",
-  v: "v",
-  n: "n",
-  z: "z",
-  y: "y",
-  w: "w",
-  a: "a",
-  s: "s",
-  d: "d",
-  f: "f",
-  x: "x",
+  Ctrl: "CONTROL",
+  Shift: "SHIFT",
+  Enter: "ENTER",
+  Delete: "DELETE",
+  ArrowUp: "ARROWUP",
+  ArrowDown: "ARROWDOWN",
+  ArrowLeft: "ARROWLEFT",
+  ArrowRight: "ARROWRIGHT",
+  g: "G",
+  b: "B",
+  r: "R",
+  c: "C",
+  v: "V",
+  n: "N",
+  z: "Z",
+  y: "Y",
+  w: "W",
+  a: "A",
+  s: "S",
+  d: "D",
+  f: "F",
+  x: "X",
   Plus: "+",
   Minus: "-",
   Zero: "0",
@@ -144,6 +144,16 @@ let hotkeys = {
   Three: "3",
   Four: "4",
 };
+if(typeof(Storage) !== undefined){
+  if(! localStorage.getItem('hotkeys')){
+    localStorage.setItem('hotkeys', JSON.stringify(hotkeys));
+  }else{
+    hotkeys = JSON.parse(localStorage.getItem('hotkeys'));
+  }
+  Array.from(document.querySelectorAll('.hotkey-change-button')).forEach(buttonVal => {
+    buttonVal.innerHTML = hotkeys[buttonVal.id.replace('hotkeys.change','')];
+  })
+}
 
 let hotkeyToChange;
 let currentHotkey = -1;
@@ -2069,6 +2079,8 @@ function loadMapFile() {
         continue;
     }
   }
+  document.querySelector('#inputMapWidth').value = mapWidth;
+  document.querySelector('#inputMapHeight').value = mapHeight;
   //console.log(loadedFile[loadedFile.length-2]);
 }
 
@@ -3036,7 +3048,8 @@ function changeHotkey(key) {
     if (currentHotkey == -1) {
       return;
     }
-    hotkeyToChange.innerHTML = event.key;
+    hotkeyToChange.innerHTML = event.key.toUpperCase();
+    markDoubleKeys();
     currentHotkey = -1;
     return;
   };
@@ -3048,75 +3061,30 @@ function hideHotkeyMenu() {
     hotkeyToChange.innerHTML = currentHotkey;
     currentHotkey = -1;
   }
-  hotkeys.Ctrl = document
-    .getElementById("hotkeys.changeCtrl")
-    .innerHTML.toLowerCase();
-  hotkeys.Shift = document
-    .getElementById("hotkeys.changeShift")
-    .innerHTML.toLowerCase();
-  hotkeys.Delete = document
-    .getElementById("hotkeys.changeDelete")
-    .innerHTML.toLowerCase();
-  hotkeys.Enter = document
-    .getElementById("hotkeys.changeEnter")
-    .innerHTML.toLowerCase();
-  hotkeys.ArrowLeft = document
-    .getElementById("hotkeys.changeArrowLeft")
-    .innerHTML.toLowerCase();
-  hotkeys.ArrowRight = document
-    .getElementById("hotkeys.changeArrowRight")
-    .innerHTML.toLowerCase();
-  hotkeys.ArrowUp = document
-    .getElementById("hotkeys.changeArrowUp")
-    .innerHTML.toLowerCase();
-  hotkeys.ArrowDown = document
-    .getElementById("hotkeys.changeArrowDown")
-    .innerHTML.toLowerCase();
-  hotkeys.g = document
-    .getElementById("hotkeys.changeg")
-    .innerHTML.toLowerCase();
-  hotkeys.b = document
-    .getElementById("hotkeys.changeb")
-    .innerHTML.toLowerCase();
-  hotkeys.n = document
-    .getElementById("hotkeys.changen")
-    .innerHTML.toLowerCase();
-  hotkeys.w = document
-    .getElementById("hotkeys.changew")
-    .innerHTML.toLowerCase();
-  hotkeys.a = document
-    .getElementById("hotkeys.changea")
-    .innerHTML.toLowerCase();
-  hotkeys.s = document
-    .getElementById("hotkeys.changes")
-    .innerHTML.toLowerCase();
-  hotkeys.d = document
-    .getElementById("hotkeys.changed")
-    .innerHTML.toLowerCase();
-    hotkeys.c = document
-    .getElementById("hotkeys.changec")
-    .innerHTML.toLowerCase();
-  hotkeys.v = document
-    .getElementById("hotkeys.changev")
-    .innerHTML.toLowerCase();
-  hotkeys.z = document
-    .getElementById("hotkeys.changez")
-    .innerHTML.toLowerCase();
-  hotkeys.y = document
-    .getElementById("hotkeys.changey")
-    .innerHTML.toLowerCase();
-    hotkeys.One = document
-    .getElementById("hotkeys.change1")
-    .innerHTML.toLowerCase();
-  hotkeys.Two = document
-    .getElementById("hotkeys.change2")
-    .innerHTML.toLowerCase();
-  hotkeys.Three = document
-    .getElementById("hotkeys.change3")
-    .innerHTML.toLowerCase();
-  hotkeys.Four = document
-    .getElementById("hotkeys.change4")
-    .innerHTML.toLowerCase();
+  Array.from(document.querySelectorAll('.hotkey-change-button')).forEach(buttonVal => {
+    console.log(buttonVal.innerHTML);
+    console.log(buttonVal.textContent);
+    hotkeys[buttonVal.id.replace('hotkeys.change', '')] = buttonVal.textContent;
+  })
+  localStorage.setItem('hotkeys', JSON.stringify(hotkeys));
+}
+
+function markDoubleKeys(){
+  let allSetHotkeys = [];
+  Array.from(document.querySelectorAll('.hotkey-change-button')).forEach(value => {
+    allSetHotkeys.push(value.innerHTML);
+  })
+  let doubledKeys = {};
+  allSetHotkeys.forEach((value, index) => {
+    doubledKeys[value] = doubledKeys?.[value] === undefined ? 0 : 1;
+  })
+  Array.from(document.querySelectorAll('.hotkey-change-button')).forEach(value => {
+    if(doubledKeys?.[value.innerHTML]){
+      value.style.color = 'red';
+    }else {
+      value.style.color = 'black';
+    }
+  })
 }
 
 function changeMapDimensions() {
@@ -3341,7 +3309,7 @@ document.addEventListener("keydown", function (event) {
       return;
     }
   }
-  temp = event.key.toLowerCase();
+  temp = event.key.toUpperCase();
   switch (temp) {
     case hotkeys.Delete: {
       //console.log("SFGH");
@@ -3478,7 +3446,7 @@ document.addEventListener("keydown", function (event) {
       );
       break;
     }
-    case "h": {
+    case "H": {
       //h for testing
       getClosestWall();
       /*alert(
@@ -3493,7 +3461,7 @@ document.addEventListener("keydown", function (event) {
       );*/
       break;
     }
-    case "q": {
+    case "Q": {
       writeIG("a", {
         x: Math.floor(mousePos.x / 160),
         y: Math.floor(mousePos.y / 200),
@@ -3506,7 +3474,7 @@ document.addEventListener("keyup", function (event) {
   if (openMenu) {
     return;
   }
-  temp = event.key.toLowerCase();
+  temp = event.key.toUpperCase();
   switch (temp) {
     case hotkeys.Ctrl: {
       Ctrl = false;
@@ -3562,7 +3530,7 @@ document.addEventListener("keyup", function (event) {
       rightD = false;
       return;
     }
-    case "l": {
+    case "L": {
       if (event.altKey) {
         let data = [];
         for (let c = 100; c < 110; c++) {

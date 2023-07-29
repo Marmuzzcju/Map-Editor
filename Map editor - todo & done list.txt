@@ -207,6 +207,11 @@ Map editor
 
         - ui change of map resize:  - 18.07
           >previously button + two times inut value
-          ->iput right on the menu
+          ->input right on the menu
+
+        - started working on UI overhaul/fix:  - 24.07
+          >grid range now editable directly on menu (26.07)
+          >updated/fixed distnace table scaling (28.07)
+          >fixed & reworked hotkey menu (28.07)
 
         
