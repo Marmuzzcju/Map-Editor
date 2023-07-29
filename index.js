@@ -3042,6 +3042,7 @@ function changeHotkey(key) {
     hotkeyToChange.innerHTML = currentHotkey;
   }
   hotkeyToChange = document.getElementById("hotkeys.change" + key);
+  hotkeyToChange.blur();
   currentHotkey = hotkeyToChange.innerHTML;
   hotkeyToChange.innerHTML = "press a key";
   onkeydown = function (event) {
