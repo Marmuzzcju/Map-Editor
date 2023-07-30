@@ -42,7 +42,7 @@
     		<label for="loadAdditionalMap">&nbsp;Load on top: </label>
     		<input type="radio" id="loadAdditionalMap" name="mapLoadingType" value="loadAdditionalMap" class="clickable"><br>
 			<button class="fatButton" onclick="confirmAction('Are you sure you want to delete your current map?\nDeleting map will also erase your undo/redo history', 1, 'Confirm', 'Cancel', 0);openMenu=true;">Clear Map</button> </br>
-			<span style="padding: 0px 3px 0px 10px;font-size: 17px;">Snap to grid range:</span><input type="number" value="2" min="1" max="1000" id="inputSnapRange" onfocus="this.select();openMenu=true;" onblur="openMenu=false;" style="width:40px;"onchange="changeSnapRange(this.value);"><span style="padding-right: 3px;font-size: 17px;"> Enabled:</span><input type="checkbox" id="enableSnapToGridCheckbox" onchange="G_snapToGrid = this.checked;"> </br>
+			<span style="padding: 0px 3px 0px 10px;font-size: 17px;">Snap to grid range:</span><input type="number" value="2" min="1" max="1000" id="inputSnapRange" onfocus="this.select();openMenu=true;" onblur="openMenu=false;" style="width:40px;"onchange="changeSnapRange(this.value);"><span style="padding-right: 3px;font-size: 17px;"> Enabled:</span><input type="checkbox" id="enableSnapToGridCheckbox" class="clickable" onchange="G_snapToGrid = this.checked;"> </br>
 			<span style="padding: 0px 3px 0px 10px;font-size: 17px;">Map Width:</span><input type="number" value="210" min="1" max="10000" id="inputMapWidth" onfocus="this.select();openMenu=true;" onblur="openMenu=false;" style="width:45px;"onchange="changeMapDimensions();"><span style="padding-right: 3px;font-size: 17px;"> Map Height:</span><input type="number" value="120" min="1" max="10000" id="inputMapHeight" onfocus="this.select();openMenu=true;" onblur="openMenu=false;" style="width: 45px;"onchange="changeMapDimensions();"> </br>
 			<button class="fatButton" onclick="document.getElementById('hotkeys').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">View/Change Hotkeys</button> </br>
 			<button class="fatButton" onclick="document.getElementById('distance-overview-table').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">View Distance Table</button> </br>
@@ -93,7 +93,7 @@
 	<div id="helpPage1" class="instructionContentPage">
 	  page 1</br>
 	  Use Right Click to place towers </br>
-	  A new placed tower will be sellected on default<img src="images/close-icon.png"></br>
+	  A new placed tower will be sellected on default<img src="images/close-icon.png" style="width: 50px;height: 50px;"></br>
 	  Left click any towers to select them</br>
 	  Shift click a tower to add or remove it from the sellected towers</br>
 	  Ctrl Click any tower to sellect all towers</br>
@@ -287,8 +287,8 @@
 		<table style="text-align: center; position: relative; top: 10%; left: 3vw; bottom: 15%; width: 74vw; height: auto;">
 			<tr>
 				<th><span style="width: 9vw"></span></th>
-				<td><input type="text" class="table-header" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 1"></td>
-				<td><input type="text" class="table-header" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 2"></td>
+				<th><input type="text" class="table-header" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 1"></th>
+				<th><input type="text" class="table-header" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 2"></th>
 				<th><input type="text" class="table-header" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 3"></th>
 				<th><input type="text" class="table-header" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 4"></th>
 				<th><input type="text" class="table-header" style="text-align: center; font-weight: bold; font-size: 15px;" onclick="this.select();" value="Path 5"></th>
@@ -350,7 +350,7 @@
 				<td></td>
 			</tr>
 			<tr>
-				<td>Fixed</td>
+				<th>Fixed</th>
 				<td><input type="checkbox" class="clickable" id="path_1_checkbox"></td>
 				<td><input type="checkbox" class="clickable" id="path_2_checkbox"></td>
 				<td><input type="checkbox" class="clickable" id="path_3_checkbox"></td>

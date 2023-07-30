@@ -213,5 +213,6 @@ Map editor
           >grid range now editable directly on menu (26.07)
           >updated/fixed distnace table scaling (28.07)
           >fixed & reworked hotkey menu (28.07)
+          >added local storage to hotkeys (29.07)
 
         
