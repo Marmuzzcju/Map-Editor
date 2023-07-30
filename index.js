@@ -3026,14 +3026,12 @@ function zoomMap(event) {
   moveBuildView();
 }
 
-function changeSelectedTowerColor() {
-  confirmAction(
-    "Change tower colors - enter new color number - 1: grey, 2: blue, 3: red...",
-    3,
-    "Update tower color",
-    "Cancel",
-    true
-  );
+function changeSelectedTowerColor(newCol) {
+  let newColor = Number(newCol).toFixed(0);
+  selectedTowerColor = 0 < newColor < 14 ? newColor : selectedTowerColor;
+  document.querySelector('#inputTowerColor').value = newColor;
+  document.querySelector('#inputTowerColor').style.backgroundColor = colors[newColor].replace('(', 'a(').replace(')', ', 0.9)');
+  document.querySelector('#selectColorDorpdown').querySelectorAll('option')[selectedTowerColor - 1].selected = true;
 }
 
 function changeHotkey(key) {
@@ -3512,7 +3510,7 @@ document.addEventListener("keyup", function (event) {
       break;
     }
     case hotkeys.n: {
-      changeSelectedTowerColor();
+      document.querySelector('#inputTowerColor').focus();
       break;
     }
     case hotkeys.w: {
@@ -3608,3 +3606,6 @@ window.setInterval(function () {
     }
   }
 }, 40);
+
+
+changeSelectedTowerColor(1);
