@@ -34,8 +34,8 @@
 			<button id="hideMenu" class="fatButton" onclick="document.getElementById('menu').style.display = 'none'; document.getElementById('showMenu').style.display = 'inline';">Hide Menu</button></br>
 			<button id="showHelp" class="fatButton" onclick="document.getElementById('instructions').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">Help/Instructions</button> </br>
 			<button class="fatButton" onclick="CopyFile()">Copy Map File (ctrl + c)</button> </br>
-			<button class="fatButton" onclick="showDownloadMapOptions();openMenu=true;">Download Map File</button> </br>  <!-- onclick="downloadMapFile('map-editor-v1.7.mapFile.txt')" -->
-			<button class="fatButton" onclick="document.getElementById('uploadMapFileButton').click();">Load Map File</button> </br>
+			<button class="fatButton" onclick="showDownloadMapOptions();openMenu=true;">Save Map File</button> </br>  <!-- onclick="downloadMapFile('map-editor-v1.7.mapFile.txt')" -->
+			<button class="fatButton" onclick="document.getElementById('loadMapFileUI').style.display = 'inline';openMenu=true;">Load Map File</button> </br>
 			<input type="file" id="uploadMapFileButton" onchange="getFile(this)">
     		<label for="loadNewMap">&nbsp;&nbsp;&nbsp;&nbsp;Load new map: </label>
 			<input type="radio" id="loadNewMap" name="mapLoadingType" value="loadNewMap" class="clickable" checked>
@@ -48,7 +48,7 @@
 			<button class="fatButton" onclick="document.getElementById('hotkeys').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">View/Change Hotkeys</button> </br>
 			<button class="fatButton" onclick="document.getElementById('distance-overview-table').style.display = 'inline';mapStuff.classList.add('blurred');openMenu=true;">View Distance Table</button> </br>
 			<button class="fatButton" onclick="showMapOverview(1)">View Map Overview</button> </br>
-  		</div>
+		</div>
 	</div>
 
 	<div id="info-box">
@@ -108,6 +108,18 @@
 	  page 3
 	</div>
   </div>
+</div>
+
+<div id="loadMapFileUI" class="infoBackground" style="display: none;">
+	<image src="images/close-icon.png" id="hideLoadMapFileUI" onclick="document.getElementById('loadMapFileUI').style.display = 'none';openMenu=false;" class="clickable closeButton">
+	<div id="loadMapFileUIContent" class="infoScroller">
+		<div class="infoTitle">Load Map File</div>
+		</br></br></br>
+		<button class="fatButton" onclick="document.getElementById('uploadMapFileButton').click();">Browse Map File</button>
+		<div>Load Local Map File <select id="selectLocalMapFile" class="clickable" style="font-size: 17px;border-radius: 3px;" onchange=""><option value="1" style="color: rgb(77,77,77);">Grey</option><option value="2" style="color: rgb(61,93,255);">Blue</option><option value="3" style="color: rgb(253,53,53);">Red</option></select></div>
+		<textarea id="mapFileText" ondblclick="this.select()"></textarea> </br>
+		<button id="loadThatMap" onclick="loadMapFile(document.querySelector('#mapFileText').value)">Load text</button>
+	</div>
 </div>
 
 <div id="hotkeys" class="infoBackground">

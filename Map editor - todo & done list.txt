@@ -214,5 +214,6 @@ Map editor
           >updated/fixed distnace table scaling (28.07)
           >fixed & reworked hotkey menu (28.07)
           >added local storage to hotkeys (29.07)
+          >updated ui for chainging place tower color (29.07 (30.07, 2-3am :p))
 
         

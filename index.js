@@ -903,6 +903,7 @@ const randomNumber = (min, max) =>
   Math.floor(Math.random() * (max - min)) + min;
 
 function buildTower() {
+  if(openMenu) return;
   //console.log("Click detected (" + event.button + ")");
   if (event.button != 0) {
     // left click
@@ -1933,7 +1934,8 @@ function downloadMapFile() {
   document.body.removeChild(element);
 }
 
-function loadMapFile() {
+function loadMapFile(loadedFile) {
+  loadedFile = loadedFile.split(/\s+/);
   temp = document.getElementsByName("mapLoadingType");
   let startingTowerID = 0;
   if (temp[0].checked) {
@@ -2198,8 +2200,8 @@ function getFile(input) {
 
   reader.onload = function () {
     console.log(reader.result);
-    loadedFile = reader.result.split(/\s+/);
-    loadMapFile();
+    loadedFile = reader.result;
+    loadMapFile(loadedFile);
   };
 
   reader.onerror = function () {
@@ -3074,7 +3076,7 @@ function markDoubleKeys(){
     allSetHotkeys.push(value.innerHTML);
   })
   let doubledKeys = {};
-  allSetHotkeys.forEach((value, index) => {
+  allSetHotkeys.forEach((value) => {
     doubledKeys[value] = doubledKeys?.[value] === undefined ? 0 : 1;
   })
   Array.from(document.querySelectorAll('.hotkey-change-button')).forEach(value => {
