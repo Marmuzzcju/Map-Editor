@@ -38,7 +38,6 @@ let mapHeight = 120;
 let kothBounds = [];
 let bombSpotsT = []; //0, {x : 0, y : 0}, {x : 0, y : 0}
 let spawnPointsS = [];
-let mapName = "map";
 
 let selectedTower = 0;
 
@@ -144,16 +143,6 @@ let hotkeys = {
   Three: "3",
   Four: "4",
 };
-if(typeof(Storage) !== undefined){
-  if(! localStorage.getItem('hotkeys')){
-    localStorage.setItem('hotkeys', JSON.stringify(hotkeys));
-  }else{
-    hotkeys = JSON.parse(localStorage.getItem('hotkeys'));
-  }
-  Array.from(document.querySelectorAll('.hotkey-change-button')).forEach(buttonVal => {
-    buttonVal.innerHTML = hotkeys[buttonVal.id.replace('hotkeys.change','')];
-  })
-}
 
 let hotkeyToChange;
 let currentHotkey = -1;
@@ -895,7 +884,6 @@ document.getElementById("hotkeys").style.display = "none";
 document.getElementById("uploadMapFileButton").style.display = "none";
 document.getElementById("chunkSelection").style.display = "none";
 document.getElementById("confirm").style.display = "none";
-document.getElementById("downloadMapOptions").style.display = "none";
 document.getElementById("tower-info").style.display = "none";
 document.getElementById("colorPicker").style.display = "none";
 
@@ -903,7 +891,7 @@ const randomNumber = (min, max) =>
   Math.floor(Math.random() * (max - min)) + min;
 
 function buildTower() {
-  if(openMenu) return;
+  if (openMenu) return;
   //console.log("Click detected (" + event.button + ")");
   if (event.button != 0) {
     // left click
@@ -1205,7 +1193,6 @@ function createDifferentThing(whichThing, coords) {
       bombSpotsT[whichBomb] = {
         x: coords.x,
         y: coords.y,
-        rotation: coords.rotation,
       };
       break;
     }
@@ -1215,7 +1202,11 @@ function createDifferentThing(whichThing, coords) {
       spawnSprite[whichSpawn].style.top = coords.y * 20 - 30; //offset spawn so it renders correctly (also weird thing as spawns coords get offset in map file unlike bpmb smh)
       if (spawnSprite[whichSpawn].classList.contains("hidden"))
         spawnSprite[whichSpawn].classList.remove("hidden");
-      spawnPointsS[whichSpawn] = { x: coords.x, y: coords.y };
+      spawnPointsS[whichSpawn] = {
+        x: coords.x,
+        y: coords.y,
+        rotation: coords.rotation,
+      };
       break;
     }
   }
@@ -1583,6 +1574,10 @@ function deleteWalls(ids) {
 
 function convertIDtoArray(IDtoConvert) {
   let type = typeof IDtoConvert;
+  if (type === "string") {
+    IDtoConvert = Number(IDtoConvert);
+    type = typeof IDtoConvert;
+  }
   switch (type) {
     case "object": {
       let arrayIDs = [];
@@ -1673,21 +1668,22 @@ function checkUnselect() {
   }, 50);
 }
 
-function generateMapFile() {
+function generateMapFile(oMFType) {
   let text = "";
-  mapWidth = document.getElementById("mapWidth").value;
-  mapHeight = document.getElementById("mapHeight").value;
-  temp = document.getElementById("mapFileFormatSelection").value;
-  if (temp === "astrollyFormat") {
+  let mapFileType = oMFType
+    ? oMFType
+    : document.getElementById("mapFileFormatSelection").value;
+  if (mapFileType === "astrollyFormat") {
     //astrolly map format
     // following part is for astrolly map file
 
-    temp2 = document.getElementById("mapAuthorName").value;
+    let mapName = document.querySelector("#mapName").value ?? "Map Name";
+    let authorName = document.getElementById("mapAuthorName").value ?? "Author";
     text =
       '{"name":"' +
       mapName +
       '","author":"' +
-      temp2 +
+      authorName +
       '","width":' +
       mapWidth * 20 +
       ',"height":' +
@@ -1735,7 +1731,7 @@ function generateMapFile() {
     //console.log("text file - " + text);
 
     return text;
-  } else if (temp === "deflyFormat") {
+  } else if (mapFileType === "deflyFormat") {
     //defly map format
     if (isNaN(mapWidth) || mapWidth == undefined || mapWidth == "") {
       mapWidth = 210;
@@ -1759,12 +1755,12 @@ function generateMapFile() {
     }
 
     bombSpotsT.forEach((bombCoords, index) => {
-      text += "t " + index + " " + bombCoords.x + " " + bombCoords.y;
-      if (!isNaN(bombCoords.rotation)) text += " " + bombCoords.rotation;
-      text += "\n";
+      text += "t " + index + " " + bombCoords.x + " " + bombCoords.y + "\n";
     });
     spawnPointsS.forEach((spawn, index) => {
-      text += "s " + (index + 1) + " " + spawn.x + " " + spawn.y + "\n";
+      text += "s " + (index + 1) + " " + spawn.x + " " + spawn.y;
+      if (!isNaN(spawn.rotation)) text += " " + spawn.rotation;
+      text += "\n";
     });
 
     let cleanStuff = cleanMapInformation();
@@ -1830,15 +1826,15 @@ function generateMapFile() {
     });
 
     return text;
-  } else if (temp === "compactFormat") {
+  } else if (mapFileType === "compactFormat") {
     //!here
     notWorkingYet();
 
     let cleanIds = cleanMapInformation();
 
-    if (isNaN(mapWidth) || mapWidth === undefined) text += ",";
+    if (isNaN(mapWidth) || mapWidth === undefined) text += "210,";
     else text += mapWidth + ",";
-    if (isNaN(mapHeight) || mapHeight === undefined) text += "|";
+    if (isNaN(mapHeight) || mapHeight === undefined) text += "120|";
     else text += mapHeight + "|";
 
     if (!isNaN(kothBounds[0])) {
@@ -1857,13 +1853,13 @@ function generateMapFile() {
 
     bombSpotsT.forEach((bombCoords, index) => {
       text += bombCoords.x + "," + bombCoords.y + ",";
-      if (!isNaN(bombCoords.rotation)) text += bombCoords.rotation;
-      text += ",";
       if (index == bombSpotsT.length - 1) text = text.replace(/.$/, "");
     });
     text += "|";
     spawnPointsS.forEach((spawn, index) => {
       text += spawn.x + "," + spawn.y + ",";
+      if (!isNaN(spawn.rotation)) text += spawn.rotation;
+      text += ",";
       if (index == spawnPointsS.length - 1) text = text.replace(/.$/, "");
     });
     text += "|";
@@ -1915,7 +1911,7 @@ function CopyFile() {
 } //=== thx to Alex for providing that code  xd  ===
 
 function downloadMapFile() {
-  mapName = document.getElementById("mapName").value;
+  let mapName = document.getElementById("mapName").value ?? "Map";
   let textContent = generateMapFile();
   if (textContent === "-") return;
   let filename = mapName + "-deflyMap.txt";
@@ -1934,156 +1930,287 @@ function downloadMapFile() {
   document.body.removeChild(element);
 }
 
-function loadMapFile(loadedFile) {
-  loadedFile = loadedFile.split(/\s+/);
-  temp = document.getElementsByName("mapLoadingType");
+async function saveMapFile() {
+  let mapName = document.getElementById("mapName").value ?? "Map";
+  let existingMaps = JSON.parse(localStorage.getItem("saved-map-list"));
+  if (existingMaps.includes(mapName)) {
+    //if that map already exists
+    let userDecision = await confirmAction(
+      "A Map with this name already exists - overwrite old save?",
+      "Overwrite"
+    );
+    console.log(userDecision);
+    if (userDecision) {
+      localStorage.setItem(mapName, generateMapFile("deflyFormat"));
+    }
+  } else {
+    localStorage.setItem(mapName, generateMapFile("deflyFormat"));
+    let newMapList = JSON.parse(localStorage.getItem("saved-map-list"));
+    newMapList.push(mapName);
+    localStorage.setItem("saved-map-list", JSON.stringify(newMapList));
+  }
+}
+
+function loadMapFile(loadedFile, oMFType) {
+  let loadingType = document.querySelector("#load-as-map-vary").value;
+  let fileType = oMFType
+    ? oMFType
+    : document.querySelector("#load-as-file-type").value;
   let startingTowerID = 0;
-  if (temp[0].checked) {
-    //new map
+  if (loadingType === "new-map" && fileType === "deflyFormat") {
+    //so it won´t delete map if 'new map' + 'not-defly-format' yet
     deleteExistingMap();
   } else {
-    startingTowerID = towerID[towerID.length - 1] + 1;
+    startingTowerID = towerID?.at(-1) ?? -1;
+    startingTowerID++;
   }
-  console.log(loadedFile);
-  for (let n = 0; n < loadedFile.length; n++) {
-    switch (loadedFile[n]) {
-      case "MAP_WIDTH":
-        if (startingTowerID == 0) {
-          //if new map
-          mapWidth = Number(loadedFile[n + 1]);
-          if (!(mapWidth > 0)) {
-            mapWidth = 210;
+  switch (fileType) {
+    case "deflyFormat": {
+      loadedFile = loadedFile.split(/\s+/);
+      console.log(loadedFile);
+      for (let n = 0; n < loadedFile.length; n++) {
+        switch (loadedFile[n]) {
+          case "MAP_WIDTH":
+            if (startingTowerID == 0) {
+              //if new map
+              mapWidth = Number(loadedFile[n + 1]);
+              if (!(mapWidth > 0)) {
+                mapWidth = 210;
+                break;
+              }
+            } else {
+              //if on top - use higher value
+              let thisMapsWidth = Number(loadedFile[n + 1]);
+              if (mapWidth < thisMapsWidth) {
+                mapWidth = thisMapsWidth;
+              }
+            }
             break;
-          }
-          document.getElementById("mapWidth").value = mapWidth;
-          theMap.style.width = mapWidth * 20;
-          let svg = document.querySelector("#mapShadingSvg");
-          svg.setAttribute("width", mapWidth * 20);
-        } else {
-          //if on top - use higher value
-          temp = Number(loadedFile[n + 1]);
-          if (mapWidth < temp) {
-            mapWidth = temp;
-            document.getElementById("mapWidth").value = mapWidth;
-            theMap.style.width = mapWidth * 20;
-            let svg = document.querySelector("#mapShadingSvg");
-            svg.setAttribute("width", mapWidth * 20);
-          }
-        }
-        break;
-      case "MAP_HEIGHT":
-        if (startingTowerID == 0) {
-          //if new map
-          mapHeight = Number(loadedFile[n + 1]);
-          if (!(mapHeight > 0)) {
-            mapHeight = 120;
+          case "MAP_HEIGHT":
+            if (startingTowerID == 0) {
+              //if new map
+              mapHeight = Number(loadedFile[n + 1]);
+              if (!(mapHeight > 0)) {
+                mapHeight = 120;
+                break; //works because map has been resized correctly upon clearing
+              }
+            } else {
+              //if on top
+              let thisMapsHeight = Number(loadedFile[n + 1]);
+              if (mapHeight < thisMapsHeight) {
+                mapHeight = thisMapsHeight;
+              }
+            }
             break;
-          }
-          document.getElementById("mapHeight").value = mapHeight;
-          theMap.style.height = mapHeight * 20;
-          let svg = document.querySelector("#mapShadingSvg");
-          svg.setAttribute("height", mapHeight * 20);
-        } else {
-          //if on top
-          temp = Number(loadedFile[n + 1]);
-          if (mapHeight < temp) {
-            mapHeight = temp;
-            document.getElementById("mapHeight").value = mapHeight;
-            theMap.style.height = mapHeight * 20;
-            let svg = document.querySelector("#mapShadingSvg");
-            svg.setAttribute("height", mapHeight * 20);
-          }
-        }
-        break;
-      case "KOTH":
-        console.log(
-          "KOTH: " +
-            loadedFile[n + 0] +
-            loadedFile[n + 1] +
-            loadedFile[n + 2] +
-            loadedFile[n + 3] +
-            loadedFile[n + 4]
-        );
-        for (let i = 0; i < 4; i++) {
-          //!here
-          kothBounds[i] = loadedFile[n + i + 1];
-        }
-        break;
-      case "t": //bomb spots
-        //bombSpotsT.push({x : loadedFile[n+2], y : loadedFile[n+3]});
-        createDifferentThing(["bomb", loadedFile[n + 1]], {
-          x: loadedFile[n + 2],
-          y: loadedFile[n + 3],
-          rotation: loadedFile[n + 4],
-        });
-        break;
-      case "s": //spawns
-        createDifferentThing(["spawn", loadedFile[n + 1] - 1], {
-          x: loadedFile[n + 2],
-          y: loadedFile[n + 3],
-        });
-        //-here
-        /*let color = "rgba(255, 53, 53, 0.5)";
-		  if(loadedFile[n+1] == 1) color = "rgba(61, 93, 255, 0.5)";
-		  let startX = loadedFile[n+2]*20;
-		  let startY = loadedFile[n+3]*20;
-		  let coords = startX + "," + startY + " " + (startX + 180) + "," + startY + " " + (startX + 180) + "," + (startY + 180) + " " + startX + "," + (startY + 180);
-		  createPolygon(coords, color);*/
-        break;
-      case "d": //tower (dot)
-        temp = loadedFile[n + 4];
-        if (temp == undefined || temp == "") temp = 1;
-        console.log(temp);
-        if (isNaN(temp)) {
-          temp = 1;
-        }
-        createTower(
-          loadedFile[n + 2] * 20 + randomNumber(-10, 10) * 0,
-          loadedFile[n + 3] * 20 + randomNumber(-10, 10) * 0,
-          Number(loadedFile[n + 1]) + startingTowerID,
-          temp
-        );
-        if (Number(loadedFile[n + 1]) + startingTowerID >= i) {
-          i = Number(loadedFile[n + 1]) + startingTowerID + 1;
-        }
-        break;
-      case "l": //wall (line)
-        //console.log('wall: ' + loadedFile[n] + " " + loadedFile[n+1] + " " + loadedFile[n+2]);
-        buildWall(
-          Number(loadedFile[n + 1]) + startingTowerID,
-          Number(loadedFile[n + 2]) + startingTowerID
-        ); //+1 +1
-        break;
-      case "z": //shaded area (zone)
-        //console.log('shaded: ' + loadedFile[n]);
-        //temp = '';
-        let thisShadingsID = [];
-        for (let r = 1; r < loadedFile.length; r++) {
-          //!here
-          if (isNaN(loadedFile[n + r]) || !(loadedFile[n + r] > 0)) {
-            r = loadedFile.length;
+          case "KOTH":
+            console.log(
+              "KOTH: " +
+                loadedFile[n + 0] +
+                loadedFile[n + 1] +
+                loadedFile[n + 2] +
+                loadedFile[n + 3] +
+                loadedFile[n + 4]
+            );
+            for (let i = 0; i < 4; i++) {
+              //!here
+              kothBounds[i] = loadedFile[n + i + 1];
+            }
+            break;
+          case "t": //bomb spots
+            //bombSpotsT.push({x : loadedFile[n+2], y : loadedFile[n+3]});
+            createDifferentThing(["bomb", loadedFile[n + 1]], {
+              x: loadedFile[n + 2],
+              y: loadedFile[n + 3],
+            });
+            break;
+          case "s": //spawns
+            createDifferentThing(["spawn", loadedFile[n + 1] - 1], {
+              x: loadedFile[n + 2],
+              y: loadedFile[n + 3],
+              rotation: loadedFile[n + 4],
+            });
+            break;
+          case "d": //tower (dot)
+            let thisTowersColor = loadedFile[n + 4];
+            if (isNaN(thisTowersColor)) thisTowersColor = 1;
+            createTower(
+              loadedFile[n + 2] * 20 + randomNumber(-10, 10) * 0, //wonky map loading
+              loadedFile[n + 3] * 20 + randomNumber(-10, 10) * 0,
+              Number(loadedFile[n + 1]) + startingTowerID,
+              thisTowersColor
+            );
+            if (Number(loadedFile[n + 1]) + startingTowerID >= i) {
+              i = Number(loadedFile[n + 1]) + startingTowerID + 1;
+            }
+            break;
+          case "l": //wall (line)
+            buildWall(
+              Number(loadedFile[n + 1]) + startingTowerID,
+              Number(loadedFile[n + 2]) + startingTowerID
+            );
+            break;
+          case "z": //shaded area (zone)
+            let thisShadingsID = [];
+            for (let r = 1; r < loadedFile.length; r++) {
+              //!here
+              if (isNaN(loadedFile[n + r]) || !(loadedFile[n + r] > 0)) {
+                r = loadedFile.length;
+                continue;
+              }
+              //temp += " " + (Number(loadedFile[n+r])+startingTowerID);
+              thisShadingsID.push(Number(loadedFile[n + r]) + startingTowerID);
+            }
+            //temp = temp.trimEnd();
+            //shadedAreas.push("z" + temp);
+            shadedAreas.push(thisShadingsID);
+            buildShading(thisShadingsID);
+            //console.log("maybe here? - " + temp);
+            break;
+          case "!!!END!!!":
+            //ends map loading
+            return;
+          default:
+            //console.log('other: ' + loadedFile[n]);
             continue;
-          }
-          //temp += " " + (Number(loadedFile[n+r])+startingTowerID);
-          thisShadingsID.push(Number(loadedFile[n + r]) + startingTowerID);
         }
-        //temp = temp.trimEnd();
-        //shadedAreas.push("z" + temp);
-        shadedAreas.push(thisShadingsID);
-        buildShading(thisShadingsID);
-        //console.log("maybe here? - " + temp);
-        break;
-      case "!!!END!!!":
-        //ends map loading
-        return;
-      default:
-        //console.log('other: ' + loadedFile[n]);
-        continue;
+      }
+      break;
+    }
+    case "astrollyFormat": {
+      //here
+      let mapData = JSON.parse(loadedFile);
+      console.log(mapData);
+      document.querySelector("#mapAuthorName").value =
+        mapData?.author ?? document.querySelector("#mapAuthorName").value;
+      document.querySelector("#mapName").value =
+        mapData?.name ?? document.querySelector("#mapName").value;
+      if (startingTowerID == 0) {
+        mapWidth = mapData.width / 20;
+        mapHeight = mapData.height / 20;
+      } else {
+        mapWidth =
+          mapWidth > mapData.width / 20 ? mapWidth : mapData.width / 20;
+        mapHeight =
+          mapHeight > mapData.height / 20 ? mapHeight : mapData.height / 20;
+      }
+      mapData.spots.forEach((bomb) => {
+        createDifferentThing(["bomb", bomb.label - 1], {
+          x: bomb.position.x / 20,
+          y: bomb.position.y / 20,
+        });
+      });
+      if (!!mapData?.spawns?.attack?.position?.x) {
+        createDifferentThing(["spawn", 1], {
+          x: mapData.spawns.attack.position.x,
+          y: mapData.spawns.attack.position.y,
+          rotation: mapData.spawns.attack.direction / 90,
+        });
+        createDifferentThing(["spawn", 0], {
+          x: mapData.spawns.defense.position.x,
+          y: mapData.spawns.defense.position.y,
+          rotation: mapData.spawns.defense.direction / 90,
+        });
+      }
+      let towers = Object.entries(mapData.nodes);
+      towers.forEach((tower) => {
+        createTower(
+          tower[1].x + randomNumber(-10, 10) * 0, //wonky map loading
+          tower[1].y + randomNumber(-10, 10) * 0,
+          Number(tower[1].nodeId) + startingTowerID,
+          1
+        );
+        if (Number(tower[1].nodeId) + startingTowerID >= i) {
+          i = Number(tower[1].nodeId) + startingTowerID + 1;
+        }
+      });
+      let walls = Object.entries(mapData.edges);
+      console.log(walls);
+      walls.forEach((wall) => {
+        console.log(
+          `From: ${Number(wall[1].fromNodeId)} to: ${Number(
+            wall[1].toNodeId
+          )}, while base = ${startingTowerID}`
+        );
+        buildWall(
+          Number(wall[1].fromNodeId) + startingTowerID,
+          Number(wall[1].toNodeId) + startingTowerID
+        );
+      });
+      break;
+    }
+    case "compactFormat": {
+      startingTowerID++;
+      let mapData = loadedFile.split("|");
+
+      //map size
+      let newMapSize = mapData[0].split(",");
+      mapWidth = Number(newMapSize[0]) > 0 ? Number(newMapSize[0]) : mapWidth;
+      mapHeight = Number(newMapSize[1]) > 0 ? Number(newMapSize[1]) : mapHeight;
+
+      //koth bounds
+      kothBounds = mapData[1].split(",").length < 4 ? [] : mapData[1].split(",");
+
+      //defuse bombs
+      let bombData = mapData[2].split(",");
+      for (let c = 0; bombData.length > c; c += 2) {
+        createDifferentThing(["bomb", c / 2], {
+          x: bombData[0 + c],
+          y: bombData[1 + c],
+        });
+      }
+
+      //defuse spawns
+      let spawnData = mapData[3].split(",");
+      for (let c = 0; spawnData.length > c; c += 3) {
+        createDifferentThing(["spawn", c / 3], {
+          x: spawnData[0 + c],
+          y: spawnData[1 + c],
+          rotation: spawnData[2 + c],
+        });
+      }
+
+      //towers (and walls monitored)
+      let walls = [];
+      let towerData = mapData[4].split(";");
+      towerData.forEach((rawTower, index) => {
+        let tower = rawTower.split(",");
+        let tColor = tower[2] === "" ? 1 : tower[2];
+        createTower(tower[0] * 20, tower[1] * 20, index + startingTowerID, tColor);
+        if (index + startingTowerID >= i) {
+          i = index + startingTowerID + 1;
+        }
+        for (let c = 3; c < tower.length; c++) {
+          walls.push([index + startingTowerID, Number(tower[c]) + startingTowerID - 1]);
+        }
+      });
+      //walls
+      walls.forEach((wall) => {
+        buildWall(wall[0], wall[1]);
+      });
+
+      //shading
+      let shadingData = mapData[5].split(";");
+      shadingData.forEach((rawShading) => {
+        let shading = rawShading.split(",");
+        let ids = [];
+        shading.forEach((tId) => {
+          ids.push(Number(tId) + startingTowerID - 1);
+        });
+        shadedAreas.push(ids);
+        buildShading(ids);
+      });
+
+      break;
     }
   }
-  document.querySelector('#inputMapWidth').value = mapWidth;
-  document.querySelector('#inputMapHeight').value = mapHeight;
+
+  updateMapSize();
   //console.log(loadedFile[loadedFile.length-2]);
+}
+
+function loadFileFromLocal(mapName){
+  document.querySelector("#map-file-text").value = localStorage.getItem(mapName);
+  document.querySelector("#mapName").value = mapName;
 }
 
 function cleanMapInformation() {
@@ -2184,8 +2311,20 @@ function deleteExistingMap() {
 
   spawnPointsS = [];
   bombSpotsT = [];
+  Array.from(spawnSprite).forEach((sprite) => {
+    sprite.classList.add("hidden");
+  });
+  Array.from(bombSpotSprite).forEach((sprite) => {
+    sprite.classList.add("hidden");
+  });
+
+  kothBounds = [];
 
   updateTowerInfo(0); // 1 - no tower
+
+  mapWidth = 210;
+  mapHeight = 120;
+  updateMapSize();
 
   pastActions = [];
   undoneActions = [];
@@ -2201,7 +2340,7 @@ function getFile(input) {
   reader.onload = function () {
     console.log(reader.result);
     loadedFile = reader.result;
-    loadMapFile(loadedFile);
+    document.querySelector("#map-file-text").value = loadedFile;
   };
 
   reader.onerror = function () {
@@ -2229,37 +2368,49 @@ function showHelpPage(page) {
   document.getElementById("pageCount").innerHTML = currentPage + "/3";
 }
 
-function showDownloadMapOptions() {
-  mapStuff.classList.add("blurred");
-  document.getElementById("downloadMapOptions").style.display = "inline";
-  document.getElementById("mapName").value = "Your map name";
-  document.getElementById("mapAuthorName").value = "Your nickname";
-  if (isNaN(mapWidth)) {
-    document.getElementById("mapWidth").value = 210;
-  } else {
-    document.getElementById("mapWidth").value = mapWidth;
-  }
-  if (isNaN(mapHeight)) {
-    document.getElementById("mapHeight").value = 120;
-  } else {
-    document.getElementById("mapHeight").value = mapHeight;
-  }
+function showMapOverview() {
+  updateMapOverview();
+  document.querySelector("#map-file-text").value = generateMapFile(document.querySelector('#load-as-file-type').value);
+  document.querySelector("#map-file-options").style.display = "inline";
+  openMenu = true;
 }
 
-function showMapOverview(state) {
-  //-here
-  if (state === 1) {
-    document.getElementById("mapOverview").classList.remove("hidden");
-    openMenu = true;
-  } else {
-    document.getElementById("mapOverview").classList.add("hidden");
-    openMenu = false;
-  }
+function updateMapOverview() {
+  let tableData = document
+    .querySelector("#map-file-options-content")
+    .querySelectorAll("td");
+  tableData[0].innerText = `${mapWidth} x ${mapHeight}`;
+  tableData[1].innerText = `${towerID.length}`;
+  tableData[2].innerText = `${wallTower1.length}`;
+  tableData[3].innerText = `${spawnPointsS.length ?? "-"}`;
+  tableData[4].innerText = `${bombSpotsT.length ?? "-"}`;
+  tableData[5].innerText = kothBounds[0]
+    ? `${kothBounds[0]}, ${kothBounds[1]}\n${kothBounds[2]}, ${kothBounds[3]}`
+    : "-";
+  let space = playableSpace();
+  tableData[6].innerText = `${space.totallSpace} units² (${space.percentage}%)`;
+  let dropdown = document.querySelector('#selectLocalFileToLoad');
+  let mapList = JSON.parse(localStorage.getItem('saved-map-list'));
+  let dropdownOption = '';
+  mapList.forEach(mapName => {
+    dropdownOption += `<option value="${mapName}">${mapName}</option>`
+  });
+  dropdown.innerHTML = dropdownOption;
 }
 
 function updateMouseCoords() {
   realMousePos.x = event.clientX;
   realMousePos.y = event.clientY;
+}
+
+function updateMapSize() {
+  theMap.style.width = mapWidth * 20;
+  theMap.style.height = mapHeight * 20;
+  let svg = document.querySelector("#mapShadingSvg");
+  svg.setAttribute("width", mapWidth * 20);
+  svg.setAttribute("height", mapHeight * 20);
+  document.querySelector("#inputMapWidth").value = mapWidth;
+  document.querySelector("#inputMapHeight").value = mapHeight;
 }
 
 function moveBuildView() {
@@ -3030,10 +3181,16 @@ function zoomMap(event) {
 
 function changeSelectedTowerColor(newCol) {
   let newColor = Number(newCol).toFixed(0);
-  selectedTowerColor = 0 < newColor < 14 ? newColor : selectedTowerColor;
-  document.querySelector('#inputTowerColor').value = newColor;
-  document.querySelector('#inputTowerColor').style.backgroundColor = colors[newColor].replace('(', 'a(').replace(')', ', 0.9)');
-  document.querySelector('#selectColorDorpdown').querySelectorAll('option')[selectedTowerColor - 1].selected = true;
+  selectedTowerColor = 0 < newColor && newColor < 14 ? newColor : 14;
+  document.querySelector("#inputTowerColor").value = selectedTowerColor;
+  document.querySelector("#inputTowerColor").style.backgroundColor = colors[
+    selectedTowerColor
+  ]
+    .replace("(", "a(")
+    .replace(")", ", 0.9)");
+  document.querySelector("#selectColorDorpdown").querySelectorAll("option")[
+    selectedTowerColor - 1
+  ].selected = true;
 }
 
 function changeHotkey(key) {
@@ -3062,30 +3219,37 @@ function hideHotkeyMenu() {
     hotkeyToChange.innerHTML = currentHotkey;
     currentHotkey = -1;
   }
-  Array.from(document.querySelectorAll('.hotkey-change-button')).forEach(buttonVal => {
-    console.log(buttonVal.innerHTML);
-    console.log(buttonVal.textContent);
-    hotkeys[buttonVal.id.replace('hotkeys.change', '')] = buttonVal.textContent;
-  })
-  localStorage.setItem('hotkeys', JSON.stringify(hotkeys));
+  Array.from(document.querySelectorAll(".hotkey-change-button")).forEach(
+    (buttonVal) => {
+      console.log(buttonVal.innerHTML);
+      console.log(buttonVal.textContent);
+      hotkeys[buttonVal.id.replace("hotkeys.change", "")] =
+        buttonVal.textContent;
+    }
+  );
+  localStorage.setItem("hotkeys", JSON.stringify(hotkeys));
 }
 
-function markDoubleKeys(){
+function markDoubleKeys() {
   let allSetHotkeys = [];
-  Array.from(document.querySelectorAll('.hotkey-change-button')).forEach(value => {
-    allSetHotkeys.push(value.innerHTML);
-  })
+  Array.from(document.querySelectorAll(".hotkey-change-button")).forEach(
+    (value) => {
+      allSetHotkeys.push(value.innerHTML);
+    }
+  );
   let doubledKeys = {};
   allSetHotkeys.forEach((value) => {
     doubledKeys[value] = doubledKeys?.[value] === undefined ? 0 : 1;
-  })
-  Array.from(document.querySelectorAll('.hotkey-change-button')).forEach(value => {
-    if(doubledKeys?.[value.innerHTML]){
-      value.style.color = 'red';
-    }else {
-      value.style.color = 'black';
+  });
+  Array.from(document.querySelectorAll(".hotkey-change-button")).forEach(
+    (value) => {
+      if (doubledKeys?.[value.innerHTML]) {
+        value.style.color = "red";
+      } else {
+        value.style.color = "black";
+      }
     }
-  })
+  );
 }
 
 function changeMapDimensions() {
@@ -3124,8 +3288,14 @@ function playableSpace() {
   });
   greySpace /= 2;
   let finalSpace = {
-    totallSpace: mapSpace - greySpace,
-    percentage: ((mapSpace - greySpace) / mapSpace) * 100,
+    totallSpace:
+      countDecimalPlaces(mapSpace - greySpace) > 2
+        ? (mapSpace - greySpace).toFixed(2)
+        : mapSpace - greySpace,
+    percentage:
+      countDecimalPlaces(((mapSpace - greySpace) / mapSpace) * 100) > 2
+        ? (((mapSpace - greySpace) / mapSpace) * 100).toFixed(2)
+        : ((mapSpace - greySpace) / mapSpace) * 100,
   };
   return finalSpace;
 }
@@ -3202,11 +3372,17 @@ function updateTowerInfo(state) {
   }
 } // 1 - new tower
 
-function confirmAction(
+function autoSave() {
+  let currentMapFile = generateMapFile("deflyFormat");
+  localStorage.setItem("auto-saved-map", currentMapFile);
+  console.log("Auto Saved Map File!");
+}
+
+async function confirmAction(
   text,
+  buttonConfirm = "Confirm",
+  buttonCancel = "Cancel",
   actionToConfirm,
-  buttonConfirm,
-  buttonCancel,
   inputBox
 ) {
   document.getElementById("confirm").style.display = "inline";
@@ -3224,60 +3400,18 @@ function confirmAction(
   } else {
     document.getElementById("confirmInputBox").style.display = "none";
   }
-  if (actionToConfirm == 2) {
-    document.getElementById("confirmInputBox").value = snapRadius / 20;
-  }
-  if (actionToConfirm == 3) {
-    document.getElementById("confirmInputBox").value = selectedTowerColor;
-  }
-  /*if (actionToConfirm == 4) {
-    document.getElementById("confirmInputBox").value = mapWidth;
-  }
-  if (actionToConfirm == 4.1) {
-    document.getElementById("confirmInputBox").value = mapHeight;
-  }*/
   button1.onclick = function () {
     document.getElementById("confirm").style.display = "none";
     mapStuff.classList.remove("blurred");
     openMenu = false;
-    switch (actionToConfirm) {
-      case 1: {
-        //delete map
-        deleteExistingMap();
-        break;
-      }
-      case 2: {
-        //change snap range
-        temp = document.getElementById("confirmInputBox").value;
-        changeSnapRange(temp);
-        break;
-      }
-      case 3: {
-        //change tower color
-        selectedTowerColor = document.getElementById("confirmInputBox").value;
-        break;
-      }
-      /*case 4: {
-        longtemp = document.getElementById("confirmInputBox").value;
-        confirmAction("Enter new map height", 4.1, "Change", "Cancel", true);
-        break;
-      }
-      case 4.1: {
-        mapWidth = longtemp;
-        mapHeight = document.getElementById("confirmInputBox").value;
-        theMap.style.width = mapWidth * 20;
-        theMap.style.height = mapHeight * 20;
-        let svg = document.querySelector("#mapShadingSvg");
-        svg.setAttribute("width", mapWidth * 20);
-        svg.setAttribute("height", mapHeight * 20);
-        break;
-      }*/
-    }
+    if (actionToConfirm) deleteExistingMap();
+    else return true;
   };
   button2.onclick = function () {
     mapStuff.classList.remove("blurred");
     openMenu = false;
     document.getElementById("confirm").style.display = "none";
+    return false;
   };
 }
 
@@ -3296,15 +3430,16 @@ document.addEventListener("keydown", function (event) {
       //this.blur();
       console.log("confirm smh idk");
       if (document.getElementById("confirm").style.display == "inline") {
+        document.getElementById("confirmButtomConfirm").focus();
         document.getElementById("confirmButtomConfirm").blur();
         document.getElementById("confirmButtomConfirm").click();
         console.log("yup");
       }
-      if (
+      /*if (
         document.getElementById("downloadMapOptions").style.display == "inline"
       ) {
         document.getElementById("downloadMapFileButton").click();
-      }
+      }*/
       return;
     } else {
       return;
@@ -3512,7 +3647,7 @@ document.addEventListener("keyup", function (event) {
       break;
     }
     case hotkeys.n: {
-      document.querySelector('#inputTowerColor').focus();
+      document.querySelector("#inputTowerColor").focus();
       break;
     }
     case hotkeys.w: {
@@ -3609,5 +3744,31 @@ window.setInterval(function () {
   }
 }, 40);
 
+window.onbeforeunload = () => {
+  autoSave();
+};
 
 changeSelectedTowerColor(1);
+
+if (typeof Storage !== undefined) {
+  if (!localStorage.getItem("hotkeys")) {
+    localStorage.setItem("hotkeys", JSON.stringify(hotkeys));
+  } else {
+    hotkeys = JSON.parse(localStorage.getItem("hotkeys"));
+  }
+  Array.from(document.querySelectorAll(".hotkey-change-button")).forEach(
+    (buttonVal) => {
+      buttonVal.innerHTML = hotkeys[buttonVal.id.replace("hotkeys.change", "")];
+    }
+  );
+
+  if (!localStorage.getItem("auto-saved-map")) {
+    localStorage.setItem("auto-saved-map", "MAP_WIDTH 210 MAP_HEIGHT 120");
+  } else {
+    loadMapFile(localStorage.getItem("auto-saved-map"), "deflyFormat");
+  }
+
+  if (!localStorage.getItem("saved-map-list")) {
+    localStorage.setItem("saved-map-list", JSON.stringify(["Empty"]));
+  }
+}

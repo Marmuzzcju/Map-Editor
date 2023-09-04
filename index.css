@@ -20,13 +20,17 @@ td {
 }
 
 tr:nth-child(even) {
-  background-color: rgb(200, 200, 200)/*rgba(0, 0, 0, 0.5);*/
+  background-color: rgb(200, 200, 200); /*rgba(0, 0, 0, 0.5);*/
 }
 tr:nth-child(odd) {
-  background-color: rgb(150, 150, 150)/*rgb(40, 40, 40);*/
+  background-color: rgb(150, 150, 150); /*rgb(40, 40, 40);*/
 }
 th {
-  background-color: rgb(0, 180, 180)/*rgb(200, 100, 0);*/
+  background-color: rgb(0, 180, 180); /*rgb(200, 100, 0);*/
+}
+
+input[type="text"] {
+  text-align: center;
 }
 
 #MapEditorMap {
@@ -64,7 +68,7 @@ th {
 #menu {
   position: fixed;
   width: 296px;
-  height: 400px;
+  height: auto;
   left: 30px;
   top: 30px;
   background-color: rgba(10, 10, 10, 0.5);
@@ -141,10 +145,7 @@ th {
 }
 
 #mapFileFormatSelection {
-  position: absolute;
-  bottom: 10%;
-  left: 72%;
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .tower {
