@@ -104,6 +104,7 @@ let Shift = false;
 let Enter = false;
 let G_snapToGrid = false;
 let R_Rotate = false;
+let M_Mirrow = false;
 
 let upW = false;
 let leftA = false;
@@ -124,6 +125,7 @@ let hotkeys = {
   g: "G",
   b: "B",
   r: "R",
+  m: "M",
   c: "C",
   v: "V",
   n: "N",
@@ -1941,10 +1943,10 @@ async function saveMapFile() {
     );
     console.log(userDecision);
     if (userDecision) {
-      localStorage.setItem(mapName, generateMapFile("deflyFormat"));
+      localStorage.setItem(`map: ${mapName}`, generateMapFile("deflyFormat"));
     }
   } else {
-    localStorage.setItem(mapName, generateMapFile("deflyFormat"));
+    localStorage.setItem(`map: ${mapName}`, generateMapFile("deflyFormat"));
     let newMapList = JSON.parse(localStorage.getItem("saved-map-list"));
     newMapList.push(mapName);
     localStorage.setItem("saved-map-list", JSON.stringify(newMapList));
@@ -2209,7 +2211,7 @@ function loadMapFile(loadedFile, oMFType) {
 }
 
 function loadFileFromLocal(mapName){
-  document.querySelector("#map-file-text").value = localStorage.getItem(mapName);
+  document.querySelector("#map-file-text").value = localStorage.getItem(`map: ${mapName}`);
   document.querySelector("#mapName").value = mapName;
 }
 
@@ -2550,6 +2552,16 @@ function shiftTowers(direction, towerIDs, distance, centre) {
     }
     someAction.distance = rotationAngle;
   }
+  if (direction === "m") {
+    M_Mirrow = false;
+  }
+  if (M_Mirrow) {
+    distance = direction;
+    direction = 'm';
+    M_Mirrow = false;
+    someAction.distance = distance;
+    someAction.direction = 'm';
+  }
   switch (direction) {
     case "u": {
       //y-
@@ -2615,6 +2627,80 @@ function shiftTowers(direction, towerIDs, distance, centre) {
         towerXpos[thisTower] = newX;
         towerYpos[thisTower] = newY;
       });
+      break;
+    }
+    case 'm':{
+      let wallsToClone = [];
+      let numberSelectedTowers = selectedTowers.length;
+      let mumberTotalTowers = towerID.length;
+      wallTower1.forEach((towerID, index) => {
+        if(selectedTowers.includes(convertIDtoArray(towerID))){
+          if(selectedTowers.includes(convertIDtoArray(wallTower2[index]))){
+            wallsToClone.push([convertIDtoArray(towerID)-(-numberSelectedTowers), convertIDtoArray(wallTower2[index])-(-numberSelectedTowers)]);
+          }
+        }
+      })
+      switch(distance){
+        case 'u':{
+          let yCoordsMirrorLine = Infinity;
+          selectedTowers.forEach(towerAr => {
+            yCoordsMirrorLine = yCoordsMirrorLine > towerYpos[towerAr] ? towerYpos[towerAr] : yCoordsMirrorLine;
+          });
+          selectedTowers.forEach(towerAr => {
+            let newYcoord = towerYpos[towerAr] + 2*(yCoordsMirrorLine - towerYpos[towerAr]);
+            createTower(towerXpos[towerAr], newYcoord, i, towerColor[towerAr]);
+          })
+          createTower(0, yCoordsMirrorLine, i, 3);
+          createTower(10000, yCoordsMirrorLine, i, 3);
+          createWall(towerID.length - 2, towerID.length - 1);
+          break;
+        }
+        case 'd':{
+          let yCoordsMirrorLine = -Infinity;
+          selectedTowers.forEach(towerAr => {
+            yCoordsMirrorLine = yCoordsMirrorLine < towerYpos[towerAr] ? towerYpos[towerAr] : yCoordsMirrorLine;
+          });
+          selectedTowers.forEach(towerAr => {
+            let newYcoord = towerYpos[towerAr] + 2*(yCoordsMirrorLine - towerYpos[towerAr]);
+            createTower(towerXpos[towerAr], newYcoord, i, towerColor[towerAr]);
+          })
+          createTower(0, yCoordsMirrorLine, i, 3);
+          createTower(10000, yCoordsMirrorLine, i, 3);
+          createWall(towerID.length - 2, towerID.length - 1);
+          break;
+        }
+        case 'l':{
+          let xCoordsMirrorLine = Infinity;
+          selectedTowers.forEach(towerAr => {
+            xCoordsMirrorLine = xCoordsMirrorLine > towerXpos[towerAr] ? towerXpos[towerAr] : xCoordsMirrorLine;
+          });
+          selectedTowers.forEach(towerAr => {
+            let newXcoord = towerXpos[towerAr] + 2*(xCoordsMirrorLine - towerXpos[towerAr]);
+            createTower(newXcoord, towerYpos[towerAr], i, towerColor[towerAr]);
+          })
+          createTower(xCoordsMirrorLine, 0, i, 3);
+          createTower(xCoordsMirrorLine, 10000, i, 3);
+          createWall(towerID.length - 2, towerID.length - 1);
+          break;
+        }
+        case 'r':{
+          let xCoordsMirrorLine = -Infinity;
+          selectedTowers.forEach(towerAr => {
+            xCoordsMirrorLine = xCoordsMirrorLine < towerXpos[towerAr] ? towerXpos[towerAr] : xCoordsMirrorLine;
+          });
+          selectedTowers.forEach(towerAr => {
+            let newXcoord = towerXpos[towerAr] + 2*(xCoordsMirrorLine - towerXpos[towerAr]);
+            createTower(newXcoord, towerYpos[towerAr], i, towerColor[towerAr]);
+          })
+          createTower(xCoordsMirrorLine, 0, i, 3);
+          createTower(xCoordsMirrorLine, 10000, i, 3);
+          createWall(towerID.length - 2, towerID.length - 1);
+          break;
+        }
+      }
+      wallsToClone.forEach(outerTowers => {
+        createWall(outerTowers[0], outerTowers[1]);
+      })
       break;
     }
     default: {
@@ -3474,6 +3560,10 @@ document.addEventListener("keydown", function (event) {
       R_Rotate = true;
       break;
     }
+    case hotkeys.m: {
+      M_Mirrow = true;
+      break;
+    }
     case hotkeys.ArrowUp: {
       shiftTowers("u");
       break;
@@ -3634,6 +3724,12 @@ document.addEventListener("keyup", function (event) {
     case hotkeys.r: {
       if (R_Rotate) {
         R_Rotate = false;
+      }
+      break;
+    }
+    case hotkeys.m: {
+      if (M_Mirrow) {
+        M_Mirrow = false;
       }
       break;
     }
