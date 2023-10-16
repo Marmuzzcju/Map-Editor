@@ -2630,13 +2630,16 @@ function shiftTowers(direction, towerIDs, distance, centre) {
       break;
     }
     case 'm':{
-      let wallsToClone = [];
-      let numberSelectedTowers = selectedTowers.length;
       let mumberTotalTowers = towerID.length;
+      let register = {};
+      selectedTowers.forEach((ar, index) => {
+        register[ar] = index + mumberTotalTowers;
+      })
+      let wallsToClone = [];
       wallTower1.forEach((towerID, index) => {
         if(selectedTowers.includes(convertIDtoArray(towerID))){
           if(selectedTowers.includes(convertIDtoArray(wallTower2[index]))){
-            wallsToClone.push([convertIDtoArray(towerID)-(-numberSelectedTowers), convertIDtoArray(wallTower2[index])-(-numberSelectedTowers)]);
+            wallsToClone.push([register[convertIDtoArray(towerID)], register[convertIDtoArray(wallTower2[index])]]);
           }
         }
       })
@@ -2650,9 +2653,9 @@ function shiftTowers(direction, towerIDs, distance, centre) {
             let newYcoord = towerYpos[towerAr] + 2*(yCoordsMirrorLine - towerYpos[towerAr]);
             createTower(towerXpos[towerAr], newYcoord, i, towerColor[towerAr]);
           })
-          createTower(0, yCoordsMirrorLine, i, 3);
+          /*createTower(0, yCoordsMirrorLine, i, 3);
           createTower(10000, yCoordsMirrorLine, i, 3);
-          createWall(towerID.length - 2, towerID.length - 1);
+          createWall(towerID.length - 2, towerID.length - 1);*///checking for correct mirroring
           break;
         }
         case 'd':{
@@ -2664,9 +2667,9 @@ function shiftTowers(direction, towerIDs, distance, centre) {
             let newYcoord = towerYpos[towerAr] + 2*(yCoordsMirrorLine - towerYpos[towerAr]);
             createTower(towerXpos[towerAr], newYcoord, i, towerColor[towerAr]);
           })
-          createTower(0, yCoordsMirrorLine, i, 3);
+          /*createTower(0, yCoordsMirrorLine, i, 3);
           createTower(10000, yCoordsMirrorLine, i, 3);
-          createWall(towerID.length - 2, towerID.length - 1);
+          createWall(towerID.length - 2, towerID.length - 1);*/
           break;
         }
         case 'l':{
@@ -2678,9 +2681,9 @@ function shiftTowers(direction, towerIDs, distance, centre) {
             let newXcoord = towerXpos[towerAr] + 2*(xCoordsMirrorLine - towerXpos[towerAr]);
             createTower(newXcoord, towerYpos[towerAr], i, towerColor[towerAr]);
           })
-          createTower(xCoordsMirrorLine, 0, i, 3);
+          /*createTower(xCoordsMirrorLine, 0, i, 3);
           createTower(xCoordsMirrorLine, 10000, i, 3);
-          createWall(towerID.length - 2, towerID.length - 1);
+          createWall(towerID.length - 2, towerID.length - 1);*/
           break;
         }
         case 'r':{
@@ -2692,9 +2695,9 @@ function shiftTowers(direction, towerIDs, distance, centre) {
             let newXcoord = towerXpos[towerAr] + 2*(xCoordsMirrorLine - towerXpos[towerAr]);
             createTower(newXcoord, towerYpos[towerAr], i, towerColor[towerAr]);
           })
-          createTower(xCoordsMirrorLine, 0, i, 3);
+          /*createTower(xCoordsMirrorLine, 0, i, 3);
           createTower(xCoordsMirrorLine, 10000, i, 3);
-          createWall(towerID.length - 2, towerID.length - 1);
+          createWall(towerID.length - 2, towerID.length - 1);*/
           break;
         }
       }
