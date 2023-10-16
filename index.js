@@ -3853,7 +3853,10 @@ if (typeof Storage !== undefined) {
   if (!localStorage.getItem("hotkeys")) {
     localStorage.setItem("hotkeys", JSON.stringify(hotkeys));
   } else {
-    hotkeys = JSON.parse(localStorage.getItem("hotkeys"));
+    let storedHotkeys = JSON.parse(localStorage.getItem("hotkeys"));
+    Object.entries(storedHotkeys).forEach(key => {
+      hotkeys[key[0]] = key[1];
+    })
   }
   Array.from(document.querySelectorAll(".hotkey-change-button")).forEach(
     (buttonVal) => {
