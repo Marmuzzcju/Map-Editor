@@ -3504,6 +3504,13 @@ async function confirmAction(
   };
 }
 
+function testMap(){
+  let link = document.querySelector('#linkToMapTest');
+  let mapData = generateMapFile("compactFormat");
+  link.href = `https://marmuzzcju.github.io/Defuse-Clone?loadMap:${mapData}`;
+  link.click();
+}
+
 document.addEventListener("contextmenu", function (event) {
   //preventing right click from creating context menu instead of detecting click
   event.preventDefault();
