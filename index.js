@@ -3505,9 +3505,10 @@ async function confirmAction(
 }
 
 function testMap(){
+  autoSave();
   let link = document.querySelector('#linkToMapTest');
-  let mapData = generateMapFile("compactFormat");
-  link.href = `https://marmuzzcju.github.io/Defuse-Clone?loadMap:${mapData}`;
+  //let mapData = generateMapFile("compactFormat");
+  //link.href = `https://marmuzzcju.github.io/Defuse-Clone?loadMap:${mapData}`;
   link.click();
 }
 
