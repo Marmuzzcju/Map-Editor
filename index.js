@@ -1727,8 +1727,17 @@ function generateMapFile(oMFType) {
     //console.log("text file - " + text);
     // shaded areas here
 
+    let bSpos = [];
+    for(c = 1; c <= 2; c++){
+      bSpos.push(bombSpotsT.length < c ? -1000 : bombSpotsT[c-1].x * 20);
+      bSpos.push(bombSpotsT.length < c ? -1000 : bombSpotsT[c-1].y * 20);
+    }
+    for(c = 1; c <= 2; c++){
+      bSpos.push(spawnPointsS.length < c ? -1000 : spawnPointsS[c-1].x * 20);
+      bSpos.push(spawnPointsS.length < c ? -1000 : spawnPointsS[c-1].y * 20);
+    }
     text +=
-      ',"towerRadius":14,"wallWidth":14,"bombRadius":200,"spots":[{"position":{"x":200,"y":900},"label":"1","id":"a"},{"position":{"x":1799,"y":900},"label":"2","id":"b"}],"spawns":{"attack":{"position":{"x":899,"y":1650},"direction":90},"defense":{"position":{"x":900,"y":0},"direction":90}}}';
+      `,"towerRadius":14,"wallWidth":14,"bombRadius":200,"spots":[{"position":{"x":${bSpos[0]},"y":${bSpos[1]}},"label":"1","id":"a"},{"position":{"x":${bSpos[2]},"y":${bSpos[3]}},"label":"2","id":"b"}],"spawns":{"attack":{"position":{"x":${bSpos[4]},"y":${bSpos[5]}},"direction":90},"defense":{"position":{"x":${bSpos[6]},"y":${bSpos[7]}},"direction":90}}}`;
     // rest stuff above
     //console.log("text file - " + text);
 
@@ -1914,9 +1923,12 @@ function CopyFile() {
 
 function downloadMapFile() {
   let mapName = document.getElementById("mapName").value ?? "Map";
+  let authorName = document.querySelector('#mapAuthorName').value;
   let textContent = generateMapFile();
   if (textContent === "-") return;
-  let filename = mapName + "-deflyMap.txt";
+  let filename = mapName;
+  let date = new Date().toDateString().slice(4);
+  filename += authorName =! '' ? ` by ${authorName} ${date}.txt` :  " ${date}.txt";
   let element = document.createElement("a");
   element.setAttribute(
     "href",
@@ -2757,7 +2769,7 @@ function undoLastAction() {
           pastActions[numeroOfThisAction].color[index]
         );
       });
-
+colors
       pastActions[numeroOfThisAction].wall1.forEach((firstWall, index) => {
         buildWall(firstWall, pastActions[numeroOfThisAction].wall2[index]);
       });
