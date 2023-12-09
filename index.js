@@ -1927,8 +1927,10 @@ function downloadMapFile() {
   let textContent = generateMapFile();
   if (textContent === "-") return;
   let filename = mapName;
+  filename += authorName =! '' ? ` by ${authorName}, ` :  `, `;
   let date = new Date().toDateString().slice(4);
-  filename += authorName =! '' ? ` by ${authorName} ${date}.txt` :  " ${date}.txt";
+  let format = document.querySelector("#mapFileFormatSelection").value.replace('Format', '')
+  filename += `${format.at(0).toUpperCase() + format.slice(1)} map, ${date}`
   let element = document.createElement("a");
   element.setAttribute(
     "href",
